@@ -50,15 +50,17 @@ exports.register = async (req, res) => {
 
     await user.save();
 
-    // Send verification email
-    await sendVerificationEmail(email, otp);
+    // Send verification email and get preview URL
+    const emailPreviewUrl = await sendVerificationEmail(email, otp);
 
     // Generate token
     const token = generateToken(user._id);
 
     res.status(201).json({
       message: 'Registration successful. Please verify your email.',
-      token
+      token,
+      emailPreviewUrl,
+      note: 'Since this is a test environment, use the emailPreviewUrl to view your verification email'
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
