@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
-const Tailor = require('../models/tailorModel');
+const User = require('../models/User');
+const Tailor = require('../models/Tailor');
 
 exports.protect = async (req, res, next) => {
   try {
