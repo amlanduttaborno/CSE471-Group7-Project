@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TailorCraft</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cut me-2"></i>TailorCraft
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span id="userNameNav">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-5 pt-3">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-content">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" onclick="showDashboard()">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showOrderNow()">
+                                <i class="fas fa-shopping-bag me-2"></i>Order Now
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showItems()">
+                                <i class="fas fa-package me-2"></i>My Items
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showTailors()">
+                                <i class="fas fa-users me-2"></i>View Tailors
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showProfile()">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="content-view">
+                    <!-- Welcome Section -->
+                    <div class="welcome-section mb-4">
+                        <div class="card border-0 bg-gradient-primary text-white">
+                            <div class="card-body">
+                                <h2 class="mb-2" id="welcomeMessage">Welcome back!</h2>
+                                <p class="mb-0" id="welcomeSubtext">Ready to create something amazing?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div id="notificationsContainer" class="mb-4"></div>
+
+                    <!-- Quick Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users stat-icon text-primary"></i>
+                                    <h3 class="stat-number" id="totalTailors">0</h3>
+                                    <p class="stat-label mb-0">Total Tailors</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle stat-icon text-success"></i>
+                                    <h3 class="stat-number" id="availableTailors">0</h3>
+                                    <p class="stat-label mb-0">Available</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shopping-cart stat-icon text-info"></i>
+                                    <h3 class="stat-number" id="totalOrders">0</h3>
+                                    <p class="stat-label mb-0">Total Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock stat-icon text-warning"></i>
+                                    <h3 class="stat-number" id="pendingOrders">0</h3>
+                                    <p class="stat-label mb-0">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="mb-3">Quick Actions</h4>
+                        </div>
+                        <div id="quickActionsContainer" class="row"></div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Recent Activity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentActivityContainer">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-info-circle mb-2"></i>
+                                            <p class="mb-0">No recent activity to display</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Recommended Tailors</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recommendedTailorsContainer">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-users mb-2"></i>
+                                            <p class="mb-0">Loading recommendations...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Now View -->
+                <div id="orderNowView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Place New Order</h2>
+                        <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="text-center py-5">
+                                <i class="fas fa-shopping-bag display-1 text-muted mb-3"></i>
+                                <h4>Order System Coming Soon</h4>
+                                <p class="text-muted">We're working on bringing you an amazing ordering experience.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items View -->
+                <div id="itemsView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>My Items</h2>
+                        <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="text-center py-5">
+                                <i class="fas fa-package display-1 text-muted mb-3"></i>
+                                <h4>No Items Yet</h4>
+                                <p class="text-muted">Your ordered items will appear here once you place your first order.</p>
+                                <button class="btn btn-primary" onclick="showOrderNow()">
+                                    <i class="fas fa-plus me-2"></i>Place Your First Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tailors View -->
+                <div id="tailorsView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Browse Tailors</h2>
+                        <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Tailor Categories -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadAvailableTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle category-icon text-success mb-3"></i>
+                                    <h5>Available Tailors</h5>
+                                    <p class="text-muted">View all verified and available tailors</p>
+                                    <span class="badge bg-success" id="availableTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadBookedTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar-check category-icon text-warning mb-3"></i>
+                                    <h5>Booked Tailors</h5>
+                                    <p class="text-muted">Tailors currently working on your orders</p>
+                                    <span class="badge bg-warning" id="bookedTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadAllTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users category-icon text-primary mb-3"></i>
+                                    <h5>All Tailors</h5>
+                                    <p class="text-muted">Browse complete list of tailors</p>
+                                    <span class="badge bg-primary" id="allTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="tailorSearch" placeholder="Search tailors...">
+                                        <button class="btn btn-outline-secondary" onclick="searchTailors()">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="specializationFilter" onchange="filterTailors()">
+                                        <option value="">All Specializations</option>
+                                        <option value="kurti">Kurti</option>
+                                        <option value="salwar-kameez">Salwar Kameez</option>
+                                        <option value="saree">Saree</option>
+                                        <option value="lehenga">Lehenga</option>
+                                        <option value="sherwani">Sherwani</option>
+                                        <option value="punjabi">Punjabi</option>
+                                        <option value="blouse">Blouse</option>
+                                        <option value="petticoat">Petticoat</option>
+                                        <option value="alterations">Alterations</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-outline-secondary" onclick="clearFilters()">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tailors List -->
+                    <div id="tailorsListContainer">
+                        <div class="text-center py-5">
+                            <i class="fas fa-users display-1 text-muted mb-3"></i>
+                            <h4>Select a Category</h4>
+                            <p class="text-muted">Choose from available, booked, or all tailors to get started.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile View -->
+                <div id="profileView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>My Profile</h2>
+                        <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Personal Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="profileForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="profileName" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="profileEmail" readonly>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="profilePhone" placeholder="Enter your phone number">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Date of Birth</label>
+                                                <input type="date" class="form-control" id="profileDateOfBirth">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Verification Status</label>
+                                                <div class="form-control d-flex align-items-center">
+                                                    <span id="verificationStatus" class="badge bg-warning">Pending</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label">Bio</label>
+                                                <textarea class="form-control" id="profileBio" rows="3" 
+                                                    placeholder="Tell us about yourself (max 500 characters)"
+                                                    maxlength="500"></textarea>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label">Address</label>
+                                                <textarea class="form-control" id="profileAddress" rows="3" 
+                                                    placeholder="Enter your complete address"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Update Profile
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="loadProfile()">
+                                                <i class="fas fa-undo me-2"></i>Reset
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Account Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Member Since:</span>
+                                        <span id="memberSince">-</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Total Orders:</span>
+                                        <span id="profileTotalOrders">0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Status:</span>
+                                        <span id="accountStatus" class="badge bg-success">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

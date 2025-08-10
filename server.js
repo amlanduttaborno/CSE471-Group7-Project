@@ -11,6 +11,42 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Import routes
+const userRoutes = require('./src/routes/userRoutes');
+const tailorRoutes = require('./src/routes/tailorRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const profileRoutes = require('./src/routes/profileRoutes');
+
+// API Routes
+app.use('/api/users', userRoutes);
+app.use('/api/tailors', tailorRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/profile', profileRoutes);
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve HTML files
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/customer-auth', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customer-auth.html'));
+});
+
+app.get('/tailor-auth', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'tailor-auth.html'));
+});
+
 // MongoDB Connection with detailed error logging
 mongoose.set('debug', true);
 mongoose.connect(process.env.MONGODB_URI, {
@@ -36,9 +72,29 @@ mongoose.connection.on('disconnected', () => {
     console.log('MongoDB disconnected');
 });
 
-// Routes
-app.use('/api/users', require('./src/routes/userRoutes'));
-app.use('/api/tailors', require('./src/routes/tailorRoutes'));
+// Already defined routes above
+// Keeping this section empty to avoid duplicates
+
+// Serve HTML files - make sure these routes are after API routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customer-dashboard.html'));
+});
+
+app.get('/customer-dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customer-dashboard.html'));
+});
+
+app.get('/customer-auth.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customer-auth.html'));
+});
+
+app.get('/tailor-auth.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'tailor-auth.html'));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -1,4 +1,4 @@
-const Tailor = require('../models/tailorModel');
+const Tailor = require('../models/Tailor');
 const jwt = require('jsonwebtoken');
 const { sendVerificationEmail, generateOTP } = require('../utils/email');
 
@@ -7,9 +7,20 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
+const { validatePassword } = require('../utils/validation');
+
 exports.register = async (req, res) => {
   try {
     const { name, email, password, experience, specialization } = req.body;
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ 
+        status: 'error',
+        message: passwordValidation.message
+      });
+    }
 
     // Check if tailor exists
     let tailor = await Tailor.findOne({ email });
