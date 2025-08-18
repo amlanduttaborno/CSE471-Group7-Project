@@ -1,0 +1,199 @@
+const Payment = require('../models/Payment');
+const Order = require('../models/Order');
+const User = require('../models/User');
+const Tailor = require('../models/Tailor');
+const SSLCommerzPayment = require('sslcommerz-nodejs');
+
+// Initialize SSLCommerz
+const sslcommerz = new SSLCommerzPayment(
+    process.env.SSLCOMMERZ_STORE_ID,
+    process.env.SSLCOMMERZ_STORE_PASSWORD,
+    false // Set to true for production
+);
+
+exports.initiatePayment = async (req, res) => {
+    try {
+        const { orderId, paymentType } = req.body;
+
+        // Get order with populated user and tailor details
+        const order = await Order.findById(orderId)
+            .populate('user', 'name email phone address')
+            .populate('tailor', 'name phone');
+
+        if (!order) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Order not found'
+            });
+        }
+
+        // Verify if the order belongs to the logged-in user
+        if (order.user._id.toString() !== req.user.id) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Unauthorized access to this order'
+            });
+        }
+
+        // Calculate payment amount (40% for advance, 100% for full payment)
+        const totalAmount = order.totalAmount;
+        const paymentAmount = paymentType === 'advance' ? totalAmount * 0.4 : totalAmount;
+
+        // Create payment record
+        const payment = new Payment({
+            orderId: order._id,
+            customerId: req.user.id,
+            amount: paymentAmount,
+            paymentType,
+            status: 'pending'
+        });
+
+        await payment.save();
+
+        // Prepare data for SSLCommerz
+        const transactionData = {
+            total_amount: paymentAmount,
+            currency: 'BDT',
+            tran_id: payment._id.toString(),
+            success_url: `${process.env.BASE_URL}/api/payment/success`,
+            fail_url: `${process.env.BASE_URL}/api/payment/fail`,
+            cancel_url: `${process.env.BASE_URL}/api/payment/cancel`,
+            ipn_url: `${process.env.BASE_URL}/api/payment/ipn`,
+            shipping_method: 'NO',
+            product_name: `Order #${order._id}`,
+            product_category: 'Tailoring',
+            product_profile: 'non-physical-goods',
+            cus_name: order.user.name,
+            cus_email: order.user.email,
+            cus_phone: order.user.phone,
+            cus_add1: order.user.address,
+            cus_city: 'Dhaka',
+            cus_country: 'Bangladesh',
+            value_a: order._id.toString(),
+            value_b: paymentType,
+            value_c: payment._id.toString()
+        };
+
+        // Initialize payment with SSLCommerz
+        const sslczData = await sslcommerz.init(transactionData);
+
+        if (sslczData?.GatewayPageURL) {
+            res.json({
+                status: 'success',
+                data: {
+                    paymentId: payment._id,
+                    gatewayUrl: sslczData.GatewayPageURL,
+                    amount: paymentAmount,
+                    orderDetails: {
+                        orderId: order._id,
+                        tailorName: order.tailor.name,
+                        tailorPhone: order.tailor.phone,
+                        totalAmount: order.totalAmount,
+                        paymentType: paymentType,
+                        clothType: order.clothType,
+                        fabricDetails: order.fabricDetails
+                    }
+                }
+            });
+        } else {
+            throw new Error('Failed to initialize SSLCommerz payment');
+        }
+    } catch (error) {
+        console.error('Payment initiation error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to initiate payment',
+            error: error.message
+        });
+    }
+};
+
+exports.handlePaymentSuccess = async (req, res) => {
+    try {
+        const { value_a, value_b, value_c, val_id } = req.body;
+        
+        // Validate the payment with SSLCommerz
+        const validationResponse = await sslcommerz.validate({ val_id });
+
+        if (validationResponse.status === 'VALID') {
+            // Update payment status
+            const payment = await Payment.findById(value_c);
+            if (!payment) {
+                throw new Error('Payment record not found');
+            }
+
+            payment.status = 'completed';
+            payment.transactionId = val_id;
+            await payment.save();
+
+            // Update order payment status
+            const order = await Order.findById(value_a);
+            if (!order) {
+                throw new Error('Order not found');
+            }
+
+            order.paymentStatus = value_b === 'advance' ? 'Partially Paid' : 'Paid';
+            await order.save();
+
+            // Redirect to success page with order details
+            res.redirect(`/payment-success.html?orderId=${order._id}`);
+        } else {
+            throw new Error('SSLCommerz payment validation failed');
+        }
+    } catch (error) {
+        console.error('Payment success handling error:', error);
+        res.redirect(`/payment-failed.html?error=${encodeURIComponent(error.message)}`);
+    }
+};
+
+exports.handlePaymentFailure = async (req, res) => {
+    try {
+        const { value_c } = req.body;
+
+        // Update payment status to failed
+        if (value_c) {
+            const payment = await Payment.findById(value_c);
+            if (payment) {
+                payment.status = 'failed';
+                await payment.save();
+            }
+        }
+
+        res.redirect('/payment-failed.html');
+    } catch (error) {
+        console.error('Payment failure handling error:', error);
+        res.redirect('/payment-failed.html');
+    }
+};
+
+exports.getPaymentStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const payment = await Payment.findOne({ orderId }).sort({ createdAt: -1 });
+
+        if (!payment) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Payment not found'
+            });
+        }
+
+        res.json({
+            status: 'success',
+            data: {
+                paymentStatus: payment.status,
+                amount: payment.amount,
+                paymentType: payment.paymentType,
+                transactionId: payment.transactionId,
+                createdAt: payment.createdAt
+            }
+        });
+    } catch (error) {
+        console.error('Get payment status error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to get payment status',
+            error: error.message
+        });
+    }
+};

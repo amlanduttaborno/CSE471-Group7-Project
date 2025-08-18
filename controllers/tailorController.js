@@ -1,4 +1,4 @@
-const Tailor = require('../models/tailorModel');
+const Tailor = require('../models/Tailor');
 const jwt = require('jsonwebtoken');
 const { sendVerificationEmail, generateOTP } = require('../utils/email');
 
