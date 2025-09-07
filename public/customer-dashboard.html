@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TailorCraft - Customer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/dashboard.css" rel="stylesheet">
+    <link href="styles/profile.css" rel="stylesheet">
+    <!-- Add modern animations library -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 300px;
+            overflow: hidden;
+        }
+        .profile-btn #dropdownProfileBio {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            opacity: 0.7;
+        }
+    </style>
+<body>
+        <!-- Navigation Bar -->
+        <nav style="background:#fff; border-bottom:1px solid #eee; padding:0.5em 2em; display:flex; gap:2em; align-items:center; font-family:Inter,sans-serif;">
+            <a href="index.html" style="font-weight:600; color:#333; text-decoration:none;">Home</a>
+            <a href="customer-dashboard.html" style="color:#333; text-decoration:none;">Customer Dashboard</a>
+            <a href="tailor-dashboard.html" style="color:#333; text-decoration:none;">Tailor Dashboard</a>
+            <a href="admin-dashboard.html" style="color:#333; text-decoration:none;">Admin Dashboard</a>
+            <!-- Add more links as needed -->
+        </nav>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-cut"></i>
+                <span>TailorCraft</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#orderNow" class="nav-item" data-section="orderNow">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Order Now</span>
+                </a>
+                <a href="#items" class="nav-item" data-section="items">
+                    <i class="fas fa-tshirt"></i>
+                    <span>My Items</span>
+                </a>
+                <a href="#tailors" class="nav-item" data-section="tailors">
+                    <i class="fas fa-users"></i>
+                    <span>View Tailors</span>
+                </a>
+                <a href="#reviews" class="nav-item" data-section="reviews">
+                    <i class="fas fa-star"></i>
+                    <span>Reviews</span>
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </nav>
+        </aside>
+
+    <!-- Main Content -->
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="top-nav">
+                <div class="nav-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-btn">
+                            <img src="https://via.placeholder.com/32" alt="Profile" id="topNavProfileImage" class="profile-avatar-small rounded-circle border border-2 border-white shadow-sm">
+                            <span class="profile-name me-2" id="dropdownProfileName"></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="profile-menu-header p-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/48" alt="Profile" id="menuProfileImage" class="profile-avatar-small rounded-circle me-3">
+                                    <div>
+                                        <div class="fw-bold" id="menuProfileName"></div>
+                                        <div class="text-muted small" id="menuProfileEmail"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-menu-body">
+                                <a href="#" class="profile-menu-item" onclick="window.dashboard.switchView('profile')">
+                                    <i class="fas fa-user-circle me-2"></i> View Profile
+                                </a>
+                                <a href="#" class="profile-menu-item" onclick="window.dashboard.logout()">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="content-view">
+                    <!-- Welcome Section -->
+                    <div class="welcome-section mb-4">
+                        <div class="card border-0 bg-gradient-primary text-white">
+                            <div class="card-body">
+                                <h2 class="mb-2" id="welcomeMessage">Welcome back!</h2>
+                                <p class="mb-0" id="welcomeSubtext">Ready to create something amazing?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div id="notificationsContainer" class="mb-4"></div>
+
+                    <!-- Quick Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users stat-icon text-primary"></i>
+                                    <h3 class="stat-number" id="totalTailors">0</h3>
+                                    <p class="stat-label mb-0">Total Tailors</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle stat-icon text-success"></i>
+                                    <h3 class="stat-number" id="availableTailors">0</h3>
+                                    <p class="stat-label mb-0">Available</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shopping-cart stat-icon text-info"></i>
+                                    <h3 class="stat-number" id="totalOrders">0</h3>
+                                    <p class="stat-label mb-0">Total Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card stat-card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock stat-icon text-warning"></i>
+                                    <h3 class="stat-number" id="pendingOrders">0</h3>
+                                    <p class="stat-label mb-0">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="mb-3">Quick Actions</h4>
+                        </div>
+                        <div id="quickActionsContainer" class="row"></div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Recent Activity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentActivityContainer">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-info-circle mb-2"></i>
+                                            <p class="mb-0">No recent activity to display</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Recommended Tailors</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recommendedTailorsContainer">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-users mb-2"></i>
+                                            <p class="mb-0">Loading recommendations...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Now View -->
+                <div id="orderNowView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Place New Order</h2>
+                        <button class="btn btn-outline-secondary" onclick="dashboard.switchView('dashboard')">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+                    
+                    <div id="notifications"></div>
+
+                    <form id="dashboardOrderForm" class="needs-validation" novalidate>
+                        <!-- Tailor Selection -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Select Tailor</h4>
+                            </div>
+                            <div class="card-body">
+                                <!-- Search and Filter Section -->
+                                <div class="row mb-4 filter-section">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Search by Name</label>
+                                        <input type="text" class="form-control" id="dashboardTailorNameSearch" 
+                                               placeholder="Enter tailor name..." onkeyup="filterDashboardTailors()">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Specialization</label>
+                                        <select class="form-select" id="dashboardSpecializationFilter" 
+                                                onchange="filterDashboardTailors()">
+                                            <option value="">All Specializations</option>
+                                            <option value="Kurti">Kurti</option>
+                                            <option value="Salwar Kameez">Salwar Kameez</option>
+                                            <option value="Lehenga">Lehenga</option>
+                                            <option value="Sharee">Sharee</option>
+                                            <option value="Anarkali">Anarkali</option>
+                                            <option value="Palazzo">Palazzo</option>
+                                            <option value="Panjabi">Panjabi</option>
+                                            <option value="Bridal Wear">Bridal Wear</option>
+                                            <option value="Traditional Wear">Traditional Wear</option>
+                                            <option value="Alterations">Alterations</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Experience (Years)</label>
+                                        <select class="form-select" id="dashboardExperienceFilter" 
+                                                onchange="filterDashboardTailors()">
+                                            <option value="">Any Experience</option>
+                                            <option value="1-5">1-5 years</option>
+                                            <option value="6-10">6-10 years</option>
+                                            <option value="11-15">11-15 years</option>
+                                            <option value="16+">16+ years</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" class="form-control" id="dashboardLocationFilter" 
+                                               placeholder="City or area..." onkeyup="filterDashboardTailors()">
+                                    </div>
+                                </div>
+                                
+                                <!-- Results Summary -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <small class="text-muted" id="dashboardTailorsCount">Loading tailors...</small>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary float-end" 
+                                                onclick="clearDashboardFilters()">Clear Filters</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="row g-3" id="dashboardTailorsList">
+                                    <!-- Tailors will be loaded here -->
+                                    <div class="col-12 text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading tailors...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Garment Type Selection -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Garment Details</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Garment Type</label>
+                                        <select class="form-select" id="dashboardGarmentType" name="garmentType" required>
+                                            <option value="">Select type...</option>
+                                            <option value="kurti">Kurti</option>
+                                            <option value="salwar-kameez">Salwar Kameez</option>
+                                            <option value="churidar">Churidar</option>
+                                            <option value="frock">Frock</option>
+                                            <option value="palazzo-set">Palazzo Set</option>
+                                            <option value="burkha">Burkha</option>
+                                            <option value="sharee-blouse">Sharee Blouse</option>
+                                            <option value="lehenga">Lehenga</option>
+                                            <option value="three-piece">Three Piece</option>
+                                            <option value="maxi-dress">Maxi Dress</option>
+                                            <option value="kaftan">Kaftan</option>
+                                            <option value="tunic">Tunic</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Style</label>
+                                        <select class="form-select" name="style">
+                                            <option value="">Select style...</option>
+                                            <option value="traditional">Traditional</option>
+                                            <option value="modern">Modern</option>
+                                            <option value="party-wear">Party Wear</option>
+                                            <option value="casual">Casual</option>
+                                            <option value="formal">Formal</option>
+                                            <option value="wedding">Wedding</option>
+                                            <option value="festive">Festive</option>
+                                            <option value="embroidered">Embroidered</option>
+                                            <option value="plain">Plain</option>
+                                            <option value="printed">Printed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Measurements -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4>Measurements</h4>
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="dashboardLoadSavedMeasurements">
+                                        <i class="fas fa-download"></i> Load Saved Measurements
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="dashboardMeasurementsForm" class="row g-3">
+                                    <!-- Measurements will be loaded here based on garment type -->
+                                    <div class="col-12 text-center text-muted">
+                                        Please select a garment type to see required measurements
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fabric Details -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Fabric Details</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="fabric-provider-section">
+                                    <label class="form-label">Who will provide the fabric?</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dashboardFabricProvider" id="dashboardCustomerProvided" value="customer" checked>
+                                        <label class="form-check-label" for="dashboardCustomerProvided">
+                                            <strong>I will provide the fabric</strong>
+                                            <small class="text-muted d-block">You will bring your own fabric to the tailor</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dashboardFabricProvider" id="dashboardTailorProvided" value="tailor">
+                                        <label class="form-check-label" for="dashboardTailorProvided">
+                                            <strong>Tailor should provide the fabric</strong>
+                                            <small class="text-muted d-block">The tailor will source and provide the fabric (additional cost may apply)</small>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="dashboardFabricDetailsSection" class="row g-3 mt-3">
+                                    <!-- Fabric Type -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fabric Type *</label>
+                                        <select class="form-select" name="fabricType" id="dashboardFabricType" required>
+                                            <option value="">Select fabric type...</option>
+                                            <optgroup label="Natural Fabrics">
+                                                <option value="cotton">Cotton</option>
+                                                <option value="silk">Silk</option>
+                                                <option value="linen">Linen</option>
+                                                <option value="wool">Wool</option>
+                                                <option value="jute">Jute</option>
+                                                <option value="muslin">Muslin</option>
+                                                <option value="khaddar">Khaddar</option>
+                                            </optgroup>
+                                            <optgroup label="Silk Varieties">
+                                                <option value="raw-silk">Raw Silk</option>
+                                                <option value="tussar-silk">Tussar Silk</option>
+                                                <option value="banarasi-silk">Banarasi Silk</option>
+                                                <option value="georgette">Georgette</option>
+                                                <option value="crepe">Crepe</option>
+                                                <option value="satin">Satin</option>
+                                            </optgroup>
+                                            <optgroup label="Synthetic Fabrics">
+                                                <option value="polyester">Polyester</option>
+                                                <option value="nylon">Nylon</option>
+                                                <option value="rayon">Rayon</option>
+                                                <option value="viscose">Viscose</option>
+                                                <option value="chiffon">Chiffon</option>
+                                                <option value="organza">Organza</option>
+                                            </optgroup>
+                                            <optgroup label="Blended Fabrics">
+                                                <option value="cotton-silk">Cotton-Silk</option>
+                                                <option value="cotton-linen">Cotton-Linen</option>
+                                                <option value="poly-cotton">Poly-Cotton</option>
+                                                <option value="viscose-cotton">Viscose-Cotton</option>
+                                            </optgroup>
+                                            <optgroup label="Special Fabrics">
+                                                <option value="denim">Denim</option>
+                                                <option value="velvet">Velvet</option>
+                                                <option value="brocade">Brocade</option>
+                                                <option value="net">Net</option>
+                                                <option value="lace">Lace</option>
+                                                <option value="chanderi">Chanderi</option>
+                                                <option value="kalamkari">Kalamkari</option>
+                                                <option value="khadi">Khadi</option>
+                                            </optgroup>
+                                            <option value="other">Other (specify in notes)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Color Selection -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Primary Color *</label>
+                                        <select class="form-select" name="fabricColor" id="dashboardFabricColor" required>
+                                            <option value="">Select color...</option>
+                                            <optgroup label="Basic Colors">
+                                                <option value="white">White</option>
+                                                <option value="black">Black</option>
+                                                <option value="red">Red</option>
+                                                <option value="blue">Blue</option>
+                                                <option value="green">Green</option>
+                                                <option value="yellow">Yellow</option>
+                                                <option value="orange">Orange</option>
+                                                <option value="purple">Purple</option>
+                                                <option value="pink">Pink</option>
+                                                <option value="brown">Brown</option>
+                                                <option value="grey">Grey</option>
+                                                <option value="beige">Beige</option>
+                                            </optgroup>
+                                            <optgroup label="Shades of Blue">
+                                                <option value="navy-blue">Navy Blue</option>
+                                                <option value="royal-blue">Royal Blue</option>
+                                                <option value="sky-blue">Sky Blue</option>
+                                                <option value="turquoise">Turquoise</option>
+                                                <option value="teal">Teal</option>
+                                            </optgroup>
+                                            <optgroup label="Shades of Red">
+                                                <option value="maroon">Maroon</option>
+                                                <option value="crimson">Crimson</option>
+                                                <option value="cherry-red">Cherry Red</option>
+                                                <option value="rose">Rose</option>
+                                            </optgroup>
+                                            <optgroup label="Shades of Green">
+                                                <option value="forest-green">Forest Green</option>
+                                                <option value="olive-green">Olive Green</option>
+                                                <option value="mint-green">Mint Green</option>
+                                                <option value="emerald">Emerald</option>
+                                            </optgroup>
+                                            <optgroup label="Neutral Tones">
+                                                <option value="cream">Cream</option>
+                                                <option value="ivory">Ivory</option>
+                                                <option value="champagne">Champagne</option>
+                                                <option value="silver">Silver</option>
+                                                <option value="gold">Gold</option>
+                                                <option value="bronze">Bronze</option>
+                                            </optgroup>
+                                            <option value="multi-color">Multi-Color</option>
+                                            <option value="other-color">Other (specify in notes)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Secondary Color -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secondary Color (if any)</label>
+                                        <select class="form-select" name="secondaryColor" id="dashboardSecondaryColor">
+                                            <option value="">No secondary color</option>
+                                            <option value="white">White</option>
+                                            <option value="black">Black</option>
+                                            <option value="red">Red</option>
+                                            <option value="blue">Blue</option>
+                                            <option value="green">Green</option>
+                                            <option value="yellow">Yellow</option>
+                                            <option value="orange">Orange</option>
+                                            <option value="purple">Purple</option>
+                                            <option value="pink">Pink</option>
+                                            <option value="brown">Brown</option>
+                                            <option value="grey">Grey</option>
+                                            <option value="gold">Gold</option>
+                                            <option value="silver">Silver</option>
+                                            <option value="other-secondary">Other</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Pattern Selection -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Pattern *</label>
+                                        <select class="form-select" name="fabricPattern" id="dashboardFabricPattern" required>
+                                            <option value="">Select pattern...</option>
+                                            <option value="solid">Solid/Plain</option>
+                                            <optgroup label="Geometric Patterns">
+                                                <option value="stripes">Stripes</option>
+                                                <option value="checks">Checks</option>
+                                                <option value="plaids">Plaids</option>
+                                                <option value="polka-dots">Polka Dots</option>
+                                                <option value="geometric">Geometric</option>
+                                                <option value="diamond">Diamond</option>
+                                                <option value="chevron">Chevron</option>
+                                            </optgroup>
+                                            <optgroup label="Floral & Nature">
+                                                <option value="floral">Floral</option>
+                                                <option value="rose">Rose</option>
+                                                <option value="leaf">Leaf</option>
+                                                <option value="paisley">Paisley</option>
+                                                <option value="botanical">Botanical</option>
+                                            </optgroup>
+                                            <optgroup label="Traditional Patterns">
+                                                <option value="block-print">Block Print</option>
+                                                <option value="batik">Batik</option>
+                                                <option value="ikat">Ikat</option>
+                                                <option value="bandhani">Bandhani</option>
+                                                <option value="kalamkari">Kalamkari</option>
+                                                <option value="madhubani">Madhubani</option>
+                                                <option value="warli">Warli</option>
+                                            </optgroup>
+                                            <optgroup label="Modern Patterns">
+                                                <option value="abstract">Abstract</option>
+                                                <option value="animal-print">Animal Print</option>
+                                                <option value="digital-print">Digital Print</option>
+                                                <option value="ombre">Ombre</option>
+                                                <option value="tie-dye">Tie-Dye</option>
+                                            </optgroup>
+                                            <option value="embroidered">Embroidered</option>
+                                            <option value="embossed">Embossed</option>
+                                            <option value="other-pattern">Other (specify in notes)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Fabric Weight -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fabric Weight</label>
+                                        <select class="form-select" name="fabricWeight" id="dashboardFabricWeight">
+                                            <option value="">Select weight...</option>
+                                            <option value="light">Light Weight (Chiffon, Georgette)</option>
+                                            <option value="medium">Medium Weight (Cotton, Linen)</option>
+                                            <option value="heavy">Heavy Weight (Silk, Brocade)</option>
+                                            <option value="very-heavy">Very Heavy (Velvet, Wool)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Fabric Texture -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fabric Texture</label>
+                                        <select class="form-select" name="fabricTexture" id="dashboardFabricTexture">
+                                            <option value="">Select texture...</option>
+                                            <option value="smooth">Smooth</option>
+                                            <option value="rough">Rough</option>
+                                            <option value="soft">Soft</option>
+                                            <option value="crisp">Crisp</option>
+                                            <option value="flowing">Flowing</option>
+                                            <option value="structured">Structured</option>
+                                            <option value="stretchy">Stretchy</option>
+                                            <option value="shiny">Shiny/Glossy</option>
+                                            <option value="matte">Matte</option>
+                                            <option value="textured">Textured</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Quantity -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fabric Quantity (meters) *</label>
+                                        <input type="number" class="form-control" name="fabricQuantity" id="dashboardFabricQuantity" 
+                                               min="0.5" step="0.25" placeholder="e.g., 2.5" required>
+                                        <small class="text-muted">Recommended: 2-3 meters for most garments</small>
+                                    </div>
+
+                                    <!-- Fabric Width -->
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fabric Width</label>
+                                        <select class="form-select" name="fabricWidth" id="dashboardFabricWidth">
+                                            <option value="">Select width...</option>
+                                            <option value="36">36 inches (Standard)</option>
+                                            <option value="42">42 inches</option>
+                                            <option value="44">44 inches (Common)</option>
+                                            <option value="58">58 inches (Wide)</option>
+                                            <option value="60">60 inches</option>
+                                            <option value="other-width">Other (specify in notes)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Finishing Options -->
+                                    <div class="col-md-8">
+                                        <label class="form-label">Finishing Options</label>
+                                        <div class="finishing-options">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="hemming" id="dashboardHemming">
+                                                        <label class="form-check-label" for="dashboardHemming">
+                                                            Hemming
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="lining" id="dashboardLining">
+                                                        <label class="form-check-label" for="dashboardLining">
+                                                            Lining
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="interfacing" id="dashboardInterfacing">
+                                                        <label class="form-check-label" for="dashboardInterfacing">
+                                                            Interfacing
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="zipper" id="dashboardZipper">
+                                                        <label class="form-check-label" for="dashboardZipper">
+                                                            Zipper
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="buttons" id="dashboardButtons">
+                                                        <label class="form-check-label" for="dashboardButtons">
+                                                            Buttons
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="embroidery" id="dashboardEmbroidery">
+                                                        <label class="form-check-label" for="dashboardEmbroidery">
+                                                            Embroidery Work
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="beadwork" id="dashboardBeadwork">
+                                                        <label class="form-check-label" for="dashboardBeadwork">
+                                                            Bead Work
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="sequins" id="dashboardSequins">
+                                                        <label class="form-check-label" for="dashboardSequins">
+                                                            Sequin Work
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="piping" id="dashboardPiping">
+                                                        <label class="form-check-label" for="dashboardPiping">
+                                                            Piping
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="dashboardFinishing" value="applique" id="dashboardApplique">
+                                                        <label class="form-check-label" for="dashboardApplique">
+                                                            Appliqué Work
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fabric Care Instructions -->
+                                    <div class="col-md-12">
+                                        <label class="form-label">Special Fabric Care Instructions</label>
+                                        <textarea class="form-control" name="fabricCareInstructions" id="dashboardFabricCareInstructions" rows="2" 
+                                                  placeholder="Any special care instructions for the fabric (e.g., dry clean only, hand wash, etc.)"></textarea>
+                                    </div>
+
+                                    <!-- Fabric Budget (for tailor-provided fabric) -->
+                                    <div class="col-md-6 fabric-budget-section" id="dashboardFabricBudgetSection" style="display: none;">
+                                        <label class="form-label">Fabric Budget (BDT)</label>
+                                        <input type="number" class="form-control" name="fabricBudget" id="dashboardFabricBudget" 
+                                               min="0" step="50" placeholder="e.g., 1500">
+                                        <small class="text-muted">Your budget for fabric (if tailor provides)</small>
+                                    </div>
+
+                                    <!-- Fabric Source (for tailor-provided fabric) -->
+                                    <div class="col-md-6 fabric-budget-section" id="dashboardFabricSourceSection" style="display: none;">
+                                        <label class="form-label">Preferred Fabric Source</label>
+                                        <select class="form-select" name="fabricSource" id="dashboardFabricSource">
+                                            <option value="">Tailor's choice</option>
+                                            <option value="local-market">Local Market</option>
+                                            <option value="branded-store">Branded Store</option>
+                                            <option value="wholesale-market">Wholesale Market</option>
+                                            <option value="online">Online</option>
+                                            <option value="specific-shop">Specific Shop (mention in notes)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Measurements Option -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="dashboardSaveMeasurements" name="saveMeasurements">
+                                    <label class="form-check-label" for="dashboardSaveMeasurements">
+                                        <strong>Save these measurements to my profile for future orders</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Expected Delivery Date -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Delivery Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Expected Delivery Date</label>
+                                        <input type="date" class="form-control" id="dashboardExpectedDeliveryDate" name="expectedDeliveryDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Special Instructions</label>
+                                        <textarea class="form-control" id="dashboardSpecialInstructions" name="specialInstructions" rows="2" 
+                                                  placeholder="Any specific delivery instructions..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-shopping-cart"></i> Place Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Items View -->
+                <div id="itemsView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>My Items</h2>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="refreshOrders()" title="Refresh Orders">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <!-- Order Status Filter -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">Filter by Status</h5>
+                                    <div class="list-group">
+                                        <button type="button" class="list-group-item list-group-item-action active" 
+                                            onclick="filterOrders('all')">
+                                            <i class="fas fa-list me-2"></i>All Orders
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Pending')">
+                                            <i class="fas fa-clock me-2 text-warning"></i>Pending
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Accepted')">
+                                            <i class="fas fa-check-circle me-2 text-success"></i>Accepted
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Fabric Collection')">
+                                            <i class="fas fa-hand-paper me-2 text-info"></i>Fabric Collection
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('In Progress')">
+                                            <i class="fas fa-cogs me-2 text-primary"></i>In Progress
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Ready for Trial')">
+                                            <i class="fas fa-user-check me-2 text-info"></i>Ready for Trial
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Alterations')">
+                                            <i class="fas fa-edit me-2 text-warning"></i>Alterations
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Completed')">
+                                            <i class="fas fa-check-double me-2 text-success"></i>Completed
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Delivered')">
+                                            <i class="fas fa-shipping-fast me-2 text-dark"></i>Delivered
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="filterOrders('Cancelled')">
+                                            <i class="fas fa-times-circle me-2 text-danger"></i>Cancelled
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <!-- Orders List -->
+                            <div id="ordersList">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Details Modal -->
+                    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Order Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body" id="orderDetailsContent">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tailors View -->
+                <div id="tailorsView" class="content-view d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Browse Tailors</h2>
+                        <button class="btn btn-outline-secondary" onclick="showDashboard()">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Tailor Categories -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadAvailableTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle category-icon text-success mb-3"></i>
+                                    <h5>Available Tailors</h5>
+                                    <p class="text-muted">View all verified and available tailors</p>
+                                    <span class="badge bg-success" id="availableTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadBookedTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar-check category-icon text-warning mb-3"></i>
+                                    <h5>Booked Tailors</h5>
+                                    <p class="text-muted">Tailors currently working on your orders</p>
+                                    <span class="badge bg-warning" id="bookedTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 category-card" onclick="loadAllTailors()">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users category-icon text-primary mb-3"></i>
+                                    <h5>All Tailors</h5>
+                                    <p class="text-muted">Browse complete list of tailors</p>
+                                    <span class="badge bg-primary" id="allTailorsBadge">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="tailorSearch" placeholder="Search tailors...">
+                                        <button class="btn btn-outline-secondary" onclick="searchTailors()">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="specializationFilter" onchange="filterTailors()">
+                                        <option value="">All Specializations</option>
+                                        <option value="Kurti">Kurti</option>
+                                        <option value="Salwar Kameez">Salwar Kameez</option>
+                                        <option value="Saree">Saree</option>
+                                        <option value="Lehenga">Lehenga</option>
+                                        <option value="Burkha">Burkha</option>
+                                        <option value="Three Piece">Three Piece</option>
+                                        <option value="Anarkali">Anarkali</option>
+                                        <option value="Palazzo Set">Palazzo Set</option>
+                                        <option value="Gharara">Gharara</option>
+                                        <option value="Wedding Dress">Wedding Dress</option>
+                                        <option value="Party Wear">Party Wear</option>
+                                        <option value="Casual Wear">Casual Wear</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-outline-secondary" onclick="clearFilters()">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tailors List -->
+                    <div id="tailorsListContainer">
+                        <div class="text-center py-5">
+                            <i class="fas fa-users display-1 text-muted mb-3"></i>
+                            <h4>Select a Category</h4>
+                            <p class="text-muted">Choose from available, booked, or all tailors to get started.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile View -->
+                <div id="profileView" class="content-view d-none animate__animated animate__fadeIn">
+                    <div class="profile-header-container bg-primary text-white p-5 mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="position-relative">
+                                    <div class="profile-avatar-container">
+                                        <img id="profileAvatar" src="https://via.placeholder.com/150" alt="Profile Avatar" class="profile-avatar rounded-circle">
+                                        <label for="profile-image-input" class="avatar-upload-btn">
+                                            <i class="fas fa-camera"></i>
+                                            <span class="ms-2">Change Photo</span>
+                                        </label>
+                                        <input type="file" id="profile-image-input" name="profilePicture" class="d-none" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="profile-header">
+                                    <h1 id="main-name-display" class="mb-2 display-5 fw-bold">Loading...</h1>
+                                    <p id="bio-display" class="mb-3 fs-5 text-white-50">Loading...</p>
+                                    <div class="mt-3">
+                                        <span class="badge bg-white text-primary">Customer Account</span>
+                                        <span id="verificationBadge" class="badge bg-success ms-2">
+                                            <i class="fas fa-check-circle me-1"></i>Verified
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-light shadow-sm" onclick="dashboard.switchView('dashboard')">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Profile Information -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white p-4 border-0">
+                                    <h4 class="mb-0">Personal Information</h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form id="profile-form" class="needs-validation" novalidate>
+                                        <div class="row g-4">
+                                            <!-- Basic Info Section -->
+                                            <div class="col-12">
+                                                <h5 class="text-primary mb-3">Basic Information</h5>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input type="text" class="form-control" id="profileName" name="name" placeholder="Full Name" required>
+                                                            <label for="profileName">Full Name</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input type="email" class="form-control" id="profileEmail" name="email" placeholder="Email" readonly>
+                                                            <label for="profileEmail">Email Address</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input type="tel" class="form-control" id="profilePhone" name="phone" placeholder="Phone Number">
+                                                            <label for="profilePhone">Phone Number</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input type="date" class="form-control" id="profileDateOfBirth" name="dateOfBirth">
+                                                            <label for="profileDateOfBirth">Date of Birth</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Additional Info Section -->
+                                            <div class="col-12">
+                                                <h5 class="text-primary mb-3">Additional Information</h5>
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <div class="form-floating">
+                                                            <textarea class="form-control" id="profileBio" name="bio" style="height: 100px" 
+                                                                placeholder="Tell us about yourself" maxlength="500"></textarea>
+                                                            <label for="profileBio">Bio</label>
+                                                            <div class="form-text text-end">
+                                                                <span id="bioCharCount">0</span>/500 characters
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-floating">
+                                                            <textarea class="form-control" id="profileAddress" name="address" style="height: 100px" 
+                                                                placeholder="Enter your address"></textarea>
+                                                            <label for="profileAddress">Address</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-end">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-save me-2"></i>Save Changes
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Summary & Measurements -->
+                        <div class="col-lg-4">
+                            <div class="row g-4">
+                                <!-- Account Summary Card -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-white p-4 border-0">
+                                            <h5 class="mb-0">Account Summary</h5>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="flex-shrink-0">
+                                                    <div class="stats-icon primary">
+                                                        <i class="fas fa-user-clock"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <div class="small text-secondary">Member Since</div>
+                                                    <div class="fw-bold" id="memberSince">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="flex-shrink-0">
+                                                    <div class="stats-icon success">
+                                                        <i class="fas fa-shopping-bag"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <div class="small text-secondary">Total Orders</div>
+                                                    <div class="fw-bold" id="profileTotalOrders">0</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <div class="stats-icon info">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <div class="small text-secondary">Account Status</div>
+                                                    <div class="fw-bold">
+                                                        <span id="accountStatus" class="badge bg-success">Active</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Saved Measurements Card -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">My Measurements</h5>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-primary me-2" onclick="addNewMeasurements()">
+                                                    <i class="fas fa-plus me-2"></i>Add New
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary" onclick="viewAllMeasurements()">
+                                                    <i class="fas fa-list me-2"></i>View All
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <div id="savedMeasurements" class="measurements-grid">
+                                                <div class="text-center text-muted py-3">
+                                                    <i class="fas fa-ruler-combined fa-2x mb-2"></i>
+                                                    <p class="mb-1">No measurements saved yet</p>
+                                                    <small>Add your measurements to make ordering faster</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews View -->
+    <div id="reviewsView" class="content-view d-none animate__animated animate__fadeIn">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Reviews</h2>
+                <button class="btn btn-outline-secondary" onclick="dashboard.switchView('dashboard')">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </button>
+            </div>
+            
+            <!-- Review Status Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                    <i class="fas fa-star text-primary fa-2x"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title">Total Reviews</h5>
+                            <h3 class="text-primary mb-0" id="totalReviewsCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title">Eligible Orders</h5>
+                            <h3 class="text-success mb-0" id="eligibleOrdersCount">0</h3>
+                            <small class="text-muted">Delivered orders you can review</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                                    <i class="fas fa-clock text-warning fa-2x"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title">Pending Reviews</h5>
+                            <h3 class="text-warning mb-0" id="pendingReviewsCount">0</h3>
+                            <small class="text-muted">Orders awaiting your review</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eligible Orders for Review -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>Orders Ready for Review
+                    </h4>
+                    <small class="text-muted">Leave reviews for your delivered orders</small>
+                </div>
+                <div class="card-body">
+                    <div id="eligibleOrdersList">
+                        <div class="text-center py-4" id="eligibleOrdersLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading eligible orders...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Reviews -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-history me-2"></i>My Reviews
+                    </h4>
+                    <small class="text-muted">Reviews you have submitted</small>
+                </div>
+                <div class="card-body">
+                    <div id="myReviewsList">
+                        <div class="text-center py-4" id="myReviewsLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading your reviews...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <input type="hidden" id="reviewOrderId" name="orderId">
+                        
+                        <!-- Order Info -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">Order Details</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Garment:</strong> <span id="reviewOrderGarment"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Tailor:</strong> <span id="reviewTailorName"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Order Date:</strong> <span id="reviewOrderDate"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Price:</strong> <span id="reviewOrderPrice"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="mb-4">
+                            <label for="rating" class="form-label">Rating *</label>
+                            <div class="rating-stars" id="ratingStars">
+                                <span class="star" data-rating="1"><i class="fas fa-star"></i></span>
+                                <span class="star" data-rating="2"><i class="fas fa-star"></i></span>
+                                <span class="star" data-rating="3"><i class="fas fa-star"></i></span>
+                                <span class="star" data-rating="4"><i class="fas fa-star"></i></span>
+                                <span class="star" data-rating="5"><i class="fas fa-star"></i></span>
+                            </div>
+                            <input type="hidden" id="rating" name="rating" required>
+                            <div class="invalid-feedback">Please select a rating</div>
+                            <small class="form-text text-muted">Click on the stars to rate your experience</small>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Review (Optional)</label>
+                            <textarea class="form-control" id="feedback" name="feedback" rows="4" 
+                                      placeholder="Share your experience with this tailor. How was the quality, delivery time, and service?"></textarea>
+                            <small class="form-text text-muted">Your review will help other customers make informed decisions</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReview()">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Review
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Measurements Modal -->
+    <div class="modal fade" id="addMeasurementsModal" tabindex="-1" aria-labelledby="addMeasurementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMeasurementsModalLabel">Add Your Measurements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileMeasurementsForm">
+                        <div class="mb-4">
+                            <label class="form-label">Measurement Set Name</label>
+                            <input type="text" class="form-control" id="measurementLabel" name="label" 
+                                   placeholder="e.g., My Standard Measurements" required>
+                            <small class="text-muted">Give a name to identify this set of measurements</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Garment Type</label>
+                            <select class="form-select" id="profileGarmentType" name="garmentType" required>
+                                <option value="">Select garment type...</option>
+                                <option value="kurti">Kurti</option>
+                                <option value="salwar-kameez">Salwar Kameez</option>
+                                <option value="sharee-blouse">Sharee Blouse</option>
+                                <option value="lehenga">Lehenga</option>
+                                <option value="burkha">Burkha</option>
+                                <option value="three-piece">Three Piece</option>
+                                <option value="anarkali">Anarkali</option>
+                                <option value="palazzo-set">Palazzo Set</option>
+                                <option value="gharara">Gharara</option>
+                                <option value="sharara">Sharara</option>
+                                <option value="churidar">Churidar</option>
+                                <option value="frock">Frock</option>
+                            </select>
+                            <small class="text-muted">Measurements will be customized based on garment type</small>
+                        </div>
+
+                        <div id="profileMeasurementsFields" class="row g-3">
+                            <div class="col-12 text-center text-muted">
+                                Please select a garment type to see measurement fields
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProfileMeasurements()">
+                        <i class="fas fa-save me-2"></i>Save Measurements
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View All Measurements Modal -->
+    <div class="modal fade" id="viewAllMeasurementsModal" tabindex="-1" aria-labelledby="viewAllMeasurementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewAllMeasurementsModalLabel">All Saved Measurements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="allMeasurementsList" class="row g-3">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" onclick="addNewMeasurements()">
+                        <i class="fas fa-plus me-2"></i>Add New Measurements
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved Measurements Modal for Dashboard Order -->
+    <div class="modal fade" id="dashboardMeasurementsModal" tabindex="-1" aria-labelledby="dashboardMeasurementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dashboardMeasurementsModalLabel">Saved Measurements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="dashboardSavedMeasurementsList">
+                        <!-- Saved measurements will be loaded here -->
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading measurements...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Success Modal for Dashboard Order -->
+    <div class="modal fade" id="dashboardOrderSuccessModal" tabindex="-1" aria-labelledby="dashboardOrderSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="dashboardOrderSuccessModalLabel">Order Placed Successfully!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="dashboardOrderSuccessDetails">
+                        <!-- Order details will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="dashboardViewOrderButton">View Order Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/dashboard-order.js"></script>
+    <script src="js/profile-measurements.js"></script>
+</body>
+</html>

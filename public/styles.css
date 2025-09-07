@@ -1,0 +1,557 @@
+/* Loading Overlay */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.loading-spinner {
+    padding: 2rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Modern and Elegant Styling */
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --secondary-color: #34495e;
+    --light-color: #ecf0f1;
+    --gold: #f1c40f;
+    --text-color: #2c3e50;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --border-color: #e1e8ed;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--gray-color);
+    color: var(--dark-color);
+    min-height: 100vh;
+}
+
+/* Rating Stars */
+.rating-stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star:hover,
+.star.active {
+    color: #ffc107;
+}
+
+.star:hover ~ .star {
+    color: #ddd;
+}
+
+.review-stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.review-stars .star {
+    font-size: 1rem;
+    color: #ffc107;
+    cursor: default;
+}
+
+.review-stars .star.empty {
+    color: #ddd;
+}
+
+.review-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.eligible-order-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.eligible-order-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.landing-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--light-color) 0%, #fff 100%);
+}
+
+/* Animated Background Elements */
+.bg-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-element {
+    position: absolute;
+    opacity: 0.1;
+    animation: float 15s infinite ease-in-out;
+}
+
+.scissors {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.tape {
+    font-size: 2rem;
+    color: var(--secondary-color);
+}
+
+.thread {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(20px, -15px) rotate(5deg); }
+    50% { transform: translate(-15px, 20px) rotate(-5deg); }
+    75% { transform: translate(15px, 15px) rotate(3deg); }
+}
+
+.bg-element:nth-child(odd) {
+    animation: float 20s infinite ease-in-out;
+}
+
+.bg-element:nth-child(even) {
+    animation: float 25s infinite ease-in-out reverse;
+}
+
+.bg-element:nth-child(3n) {
+    animation: float 22s infinite ease-in-out;
+    animation-delay: -5s;
+}
+
+.bg-element:nth-child(3n+1) {
+    animation: float 28s infinite ease-in-out reverse;
+    animation-delay: -8s;
+}
+
+.landing-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.landing-title {
+    font-size: 2.8rem;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.landing-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, var(--accent-color), var(--gold));
+    border-radius: 3px;
+}
+
+.landing-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.options-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.option-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(to right, var(--accent-color), var(--gold));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: var(--secondary-color);
+}
+
+.option-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 2rem;
+}
+
+.auth-box {
+    background: var(--light-color);
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-title {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-color), #c0392b);
+    color: white;
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--secondary-color);
+    color: var(--light-color);
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+.response-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Tailor Selection Cards */
+.card.selected {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25) !important;
+    background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+.form-check-label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #0d6efd;
+}
+
+/* Filter Controls */
+.filter-section .form-control:focus,
+.filter-section .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-box {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
+
+/* Professional Order Status Badges */
+.badge.bg-warning {
+    background-color: #ff8c00 !important; /* Orange for pending/alterations */
+    color: white !important;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important; /* Green for accepted/completed */
+    color: white !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important; /* Teal for fabric collection/ready for trial */
+    color: white !important;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important; /* Blue for in progress */
+    color: white !important;
+}
+
+.badge.bg-dark {
+    background-color: #343a40 !important; /* Dark for delivered */
+    color: white !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important; /* Red for cancelled */
+    color: white !important;
+}
+
+/* Status badge animations and effects */
+.order-card .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card .badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Filter button enhancements */
+.list-group-item.active {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item.active:hover {
+    background-color: #0056b3 !important;
+}
+
+/* Order card enhancements */
+.order-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Status-specific left border colors */
+.order-card[data-status="Pending"] {
+    border-left-color: #ff8c00;
+}
+
+.order-card[data-status="Accepted"] {
+    border-left-color: #28a745;
+}
+
+.order-card[data-status="Fabric Collection"] {
+    border-left-color: #17a2b8;
+}
+
+.order-card[data-status="In Progress"] {
+    border-left-color: #007bff;
+}
+
+.order-card[data-status="Ready for Trial"] {
+    border-left-color: #17a2b8;
+}
+
+.order-card[data-status="Alterations"] {
+    border-left-color: #ff8c00;
+}
+
+.order-card[data-status="Completed"] {
+    border-left-color: #28a745;
+}
+
+.order-card[data-status="Delivered"] {
+    border-left-color: #343a40;
+}
+
+.order-card[data-status="Cancelled"] {
+    border-left-color: #dc3545;
+}

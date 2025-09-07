@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TailorCraft - Tailor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/tailor-dashboard.css">
+    <link rel="stylesheet" href="styles/utilities.css">
+    
+    <style>
+        /* Order Details Styling */
+        .order-details-container .info-item {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        
+        .order-id-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .customer-info strong {
+            color: #333;
+        }
+        
+        .service-badge {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .date-badge {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .amount-display {
+            color: #2e7d32;
+            font-size: 1.1em;
+        }
+        
+        .special-instructions {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 8px;
+            margin-top: 4px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .measurement-item {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .measurement-label {
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .measurement-value {
+            font-weight: 600;
+            color: #333;
+            margin-left: 8px;
+        }
+        
+        .measurement-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .measurement-card .measurement-label {
+            display: block;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .measurement-card .measurement-value {
+            display: block;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin-left: 0;
+        }
+        
+        .fabric-details .row > div {
+            margin-bottom: 8px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+        
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .timeline-status {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .timeline-date {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .timeline-notes {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* Table enhancements */
+        #allOrdersTable th {
+            background: #f8f9fa;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        #allOrdersTable tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+        
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+        
+        /* Modal enhancements */
+        .modal-lg {
+            max-width: 800px;
+        }
+        
+        .modal-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .modal-title {
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+        <!-- Navigation Bar -->
+        <nav style="background:#fff; border-bottom:1px solid #eee; padding:0.5em 2em; display:flex; gap:2em; align-items:center; font-family:Inter,sans-serif;">
+            <a href="index.html" style="font-weight:600; color:#333; text-decoration:none;">Home</a>
+            <a href="customer-dashboard.html" style="color:#333; text-decoration:none;">Customer Dashboard</a>
+            <a href="tailor-dashboard.html" style="color:#333; text-decoration:none;">Tailor Dashboard</a>
+            <a href="admin-dashboard.html" style="color:#333; text-decoration:none;">Admin Dashboard</a>
+            <!-- Add more links as needed -->
+        </nav>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-cut"></i>
+                <span>TailorCraft</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-section="overview">
+                    <i class="fas fa-home"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-section="orders">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="#" class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item" data-section="measurements">
+                    <i class="fas fa-ruler"></i>
+                    <span>Measurements</span>
+                </a>
+                <a href="#" class="nav-item" data-section="reviews">
+                    <i class="fas fa-star"></i>
+                    <span>Reviews</span>
+                </a>
+                <a href="#" class="nav-item" data-section="earnings">
+                    <i class="fas fa-wallet"></i>
+                    <span>Earnings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" id="logout" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <nav class="top-nav">
+                <div class="nav-left">
+                    <button id="sidebarToggle" class="btn btn-link">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="sectionTitle">Dashboard Overview</h2>
+                </div>
+                <div class="nav-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-btn" type="button" id="profileDropdown">
+                            <img src="https://via.placeholder.com/32" alt="Profile" id="topNavProfileImage" class="profile-avatar-small rounded-circle border border-2 border-white shadow-sm">
+                            <span class="profile-name me-2" id="tailorName">Loading...</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="profile-menu-header p-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/48" alt="Profile" id="menuProfileImage" class="profile-avatar-small rounded-circle me-3">
+                                    <div>
+                                        <div class="fw-bold" id="menuProfileName"></div>
+                                        <div class="text-muted small" id="menuProfileEmail"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-menu-body">
+                                <a href="#" class="profile-menu-item" onclick="window.tailor.switchView('profile')">
+                                    <i class="fas fa-user-circle me-2"></i> View Profile
+                                </a>
+                                <a href="#" class="profile-menu-item" onclick="window.tailor.logout()">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Overview Section -->
+                <div id="overviewView" class="content-view">
+                    <div class="row">
+                        <!-- Stats Cards -->
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3 id="pendingOrders">0</h3>
+                                    <p>Pending Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3 id="completedOrders">0</h3>
+                                    <p>Completed Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3 id="rating">0.0</h3>
+                                    <p>Average Rating</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3 id="earnings">৳0</h3>
+                                    <p>Total Earnings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Recent Orders</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table" id="recentOrdersTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Customer</th>
+                                                    <th>Service</th>
+                                                    <th>Order Date</th>
+                                                    <th>Due Date</th>
+                                                    <th>Status</th>
+                                                    <th>Amount</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recentOrdersBody">
+                                                <!-- Orders will be populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Recent Reviews -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Recent Reviews</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentReviews">
+                                        <!-- Reviews will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Section -->
+                <div id="ordersView" class="content-view d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">All Orders</h5>
+                                <div class="order-filters">
+                                    <select class="form-select" id="orderStatusFilter">
+                                        <option value="all">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="in-progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="allOrdersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Service</th>
+                                            <th>Order Date</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th>Amount</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="allOrdersBody">
+                                        <!-- Orders will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div id="profileView" class="content-view d-none">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <div class="profile-image-container mb-3">
+                                        <img src="https://via.placeholder.com/150" alt="Profile Picture" class="profile-image" id="profileImage">
+                                        <div class="profile-image-overlay">
+                                            <label for="profileImageUpload" class="btn btn-sm btn-light">
+                                                <i class="fas fa-camera"></i>
+                                            </label>
+                                            <input type="file" id="profileImageUpload" hidden accept="image/*">
+                                        </div>
+                                    </div>
+                                    <h4 id="profileName">Loading...</h4>
+                                    <p class="text-muted mb-2"><i class="fas fa-envelope"></i> <span id="profileEmail">Loading...</span></p>
+                                    <p class="text-muted" id="profileSpecialization"></p>
+                                    <p class="text-muted"><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">Loading...</span></p>
+                                    <div id="verificationStatus" class="mt-2">
+                                        <!-- Verification status will be updated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Profile Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="profileForm">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="fullName" name="name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email" name="email" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Shop Name</label>
+                                                <input type="text" class="form-control" id="shopName" name="shopName">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Experience (Years)</label>
+                                                <input type="number" class="form-control" id="experience" name="experience" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Specializations</label>
+                                            <select class="form-select" id="specialization" name="specialization" multiple>
+                                                <option value="Kurti">Kurti</option>
+                                                <option value="Salwar Kameez">Salwar Kameez</option>
+                                                <option value="Lehenga">Lehenga</option>
+                                                <option value="Sharee">Sharee</option>
+                                                <option value="Gharara">Gharara</option>
+                                                <option value="Anarkali">Anarkali</option>
+                                                <option value="Palazzo">Palazzo</option>
+                                                <option value="Panjabi">Panjabi</option>
+                                                <option value="Fotua">Fotua</option>
+                                                <option value="Alterations">Alterations</option>
+                                                <option value="Bridal Wear">Bridal Wear</option>
+                                                <option value="Traditional Wear">Traditional Wear</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Address</label>
+                                            <input type="text" class="form-control mb-2" id="street" name="shopAddress.street" placeholder="Street">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <input type="text" class="form-control" id="city" name="shopAddress.city" placeholder="City">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" class="form-control" id="state" name="shopAddress.state" placeholder="State">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" class="form-control" id="postalCode" name="shopAddress.postalCode" placeholder="Postal Code">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Business Hours</label>
+                                                <div class="input-group mb-2">
+                                                    <input type="time" class="form-control" id="startTime" name="businessHours.start">
+                                                    <span class="input-group-text">to</span>
+                                                    <input type="time" class="form-control" id="endTime" name="businessHours.end">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Working Days</label>
+                                                <div class="btn-group-vertical w-100" id="workingDays">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <input type="checkbox" class="btn-check" id="monday" name="businessHours.daysOpen" value="Monday">
+                                                        <label class="btn btn-outline-primary" for="monday">Monday</label>
+                                                        <input type="checkbox" class="btn-check" id="tuesday" name="businessHours.daysOpen" value="Tuesday">
+                                                        <label class="btn btn-outline-primary" for="tuesday">Tuesday</label>
+                                                        <input type="checkbox" class="btn-check" id="wednesday" name="businessHours.daysOpen" value="Wednesday">
+                                                        <label class="btn btn-outline-primary" for="wednesday">Wednesday</label>
+                                                    </div>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <input type="checkbox" class="btn-check" id="thursday" name="businessHours.daysOpen" value="Thursday">
+                                                        <label class="btn btn-outline-primary" for="thursday">Thursday</label>
+                                                        <input type="checkbox" class="btn-check" id="friday" name="businessHours.daysOpen" value="Friday">
+                                                        <label class="btn btn-outline-primary" for="friday">Friday</label>
+                                                        <input type="checkbox" class="btn-check" id="saturday" name="businessHours.daysOpen" value="Saturday">
+                                                        <label class="btn btn-outline-primary" for="saturday">Saturday</label>
+                                                        <input type="checkbox" class="btn-check" id="sunday" name="businessHours.daysOpen" value="Sunday">
+                                                        <label class="btn btn-outline-primary" for="sunday">Sunday</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Bio</label>
+                                            <textarea class="form-control" id="bio" name="bio" rows="3"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Section -->
+                <div id="reviewsView" class="content-view d-none">
+                    <!-- Review Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                                            <i class="fas fa-star text-warning fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Average Rating</h5>
+                                    <h3 class="text-warning mb-0" id="averageRating">0.0</h3>
+                                    <small class="text-muted">out of 5 stars</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                            <i class="fas fa-comments text-primary fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Total Reviews</h5>
+                                    <h3 class="text-primary mb-0" id="totalReviewsCount">0</h3>
+                                    <small class="text-muted">customer feedback</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                            <i class="fas fa-thumbs-up text-success fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">5-Star Reviews</h5>
+                                    <h3 class="text-success mb-0" id="fiveStarCount">0</h3>
+                                    <small class="text-muted">excellent ratings</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                                            <i class="fas fa-chart-line text-info fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">This Month</h5>
+                                    <h3 class="text-info mb-0" id="monthlyReviewsCount">0</h3>
+                                    <small class="text-muted">new reviews</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating Distribution -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h4 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Rating Distribution
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="ratingDistribution">
+                                <!-- Rating bars will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-comment me-2"></i>Customer Reviews
+                                </h4>
+                                <div class="review-filters">
+                                    <select class="form-select" id="reviewRatingFilter" onchange="filterReviews()">
+                                        <option value="all">All Ratings</option>
+                                        <option value="5">5 Stars</option>
+                                        <option value="4">4 Stars</option>
+                                        <option value="3">3 Stars</option>
+                                        <option value="2">2 Stars</option>
+                                        <option value="1">1 Star</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="reviewsList">
+                                <div class="text-center py-4" id="reviewsLoading">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading reviews...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Section -->
+                <div id="earningsView" class="content-view d-none">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Earnings Overview</h5>
+                                        <div class="earnings-filters">
+                                            <select class="form-select" id="earningsPeriod">
+                                                <option value="week">This Week</option>
+                                                <option value="month">This Month</option>
+                                                <option value="year">This Year</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="earningsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Earnings Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="summary-item">
+                                        <span class="label">Today's Earnings</span>
+                                        <span class="value" id="todayEarnings">৳0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">This Week</span>
+                                        <span class="value" id="weekEarnings">৳0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">This Month</span>
+                                        <span class="value" id="monthEarnings">৳0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">This Year</span>
+                                        <span class="value" id="yearEarnings">৳0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Measurements Section -->
+                <div id="measurementsView" class="content-view d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Customer Measurements</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="measurementsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Measurement Type</th>
+                                            <th>Last Updated</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="measurementsBody">
+                                        <!-- Measurements will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- Order details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Measurement Details Modal -->
+    <div class="modal fade" id="measurementDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Measurement Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="measurementDetailsContent">
+                    <!-- Measurement details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/tailor-dashboard.js"></script>
+</body>
+</html>

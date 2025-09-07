@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - TailorCraft</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .success-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .success-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: checkScale 0.6s ease-in-out;
+        }
+        
+        @keyframes checkScale {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .success-body {
+            padding: 40px;
+        }
+        
+        .receipt-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .receipt-header {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #28a745;
+        }
+        
+        .detail-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #212529;
+        }
+        
+        .order-details {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-custom {
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+        
+        .btn-outline-custom:hover {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .measurement-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .fabric-details {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .print-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+            }
+            .success-container {
+                min-height: auto;
+            }
+            .btn-custom, .print-section {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-card">
+            <div class="success-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1 class="mb-0">Payment Successful!</h1>
+                <p class="mb-0 mt-2">Your order has been placed and payment processed successfully</p>
+            </div>
+            
+            <div class="success-body">
+                <!-- Payment Receipt -->
+                <div class="receipt-section">
+                    <div class="receipt-header">
+                        <h4><i class="fas fa-receipt me-2"></i>Payment Receipt</h4>
+                        <small class="text-muted">Transaction completed on <span id="paymentDate"></span></small>
+                    </div>
+                    <div id="paymentDetails">
+                        <!-- Payment details will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="order-details">
+                    <h5><i class="fas fa-clipboard-list me-2"></i>Order Summary</h5>
+                    <div id="orderSummary">
+                        <!-- Order details will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Measurements -->
+                <div class="order-details" id="measurementsSection">
+                    <h6><i class="fas fa-ruler me-2"></i>Measurements</h6>
+                    <div id="measurementsList">
+                        <!-- Measurements will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Fabric Details -->
+                <div class="order-details" id="fabricSection">
+                    <h6><i class="fas fa-cut me-2"></i>Fabric Details</h6>
+                    <div id="fabricDetails">
+                        <!-- Fabric details will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="text-center mt-4">
+                    <a href="/customer-dashboard.html" class="btn btn-primary-custom btn-custom">
+                        <i class="fas fa-tachometer-alt me-2"></i>Return to Dashboard
+                    </a>
+                    <a href="#" onclick="window.print()" class="btn btn-outline-custom btn-custom">
+                        <i class="fas fa-print me-2"></i>Print Receipt
+                    </a>
+                    <a href="mailto:?subject=Order Receipt - TailorCraft&body=Order receipt attached" class="btn btn-outline-custom btn-custom">
+                        <i class="fas fa-envelope me-2"></i>Email Receipt
+                    </a>
+                </div>
+                
+                <div class="print-section">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Keep this receipt for your records. You can track your order progress from your dashboard.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderPaymentDetails();
+        });
+
+        async function loadOrderPaymentDetails() {
+            try {
+                // Get order details from localStorage
+                const orderDetails = localStorage.getItem('completedOrderDetails');
+                if (!orderDetails) {
+                    console.error('No order details found');
+                    showError('Order details not found');
+                    return;
+                }
+
+                const order = JSON.parse(orderDetails);
+                console.log('Loaded order details:', order);
+
+                // Set payment date
+                document.getElementById('paymentDate').textContent = new Date().toLocaleString();
+
+                // Display payment details
+                displayPaymentDetails(order);
+                
+                // Display order summary
+                displayOrderSummary(order);
+                
+                // Display measurements
+                displayMeasurements(order.measurements);
+                
+                // Display fabric details
+                displayFabricDetails(order.fabricDetails);
+
+                // Clean up localStorage
+                localStorage.removeItem('completedOrderDetails');
+                
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                showError('Failed to load order details');
+            }
+        }
+
+        function displayPaymentDetails(order) {
+            const paymentDetailsDiv = document.getElementById('paymentDetails');
+            paymentDetailsDiv.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">TXN${Date.now()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment Method:</span>
+                    <span class="detail-value">${order.paymentMethod?.toUpperCase()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment Type:</span>
+                    <span class="detail-value">${order.paymentType === 'advance' ? '40% Advance Payment' : 'Full Payment'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Order Amount:</span>
+                    <span class="detail-value">৳${order.estimatedPrice}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Amount Paid:</span>
+                    <span class="detail-value">৳${order.paymentAmount}</span>
+                </div>
+            `;
+        }
+
+        function displayOrderSummary(order) {
+            const orderSummaryDiv = document.getElementById('orderSummary');
+            const tailorDisplay = order.shopName && order.shopName !== 'Not specified' 
+                ? `${order.tailorName} (${order.shopName})`
+                : order.tailorName;
+                
+            orderSummaryDiv.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">${order.orderId}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tailor:</span>
+                    <span class="detail-value">${tailorDisplay}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Garment Type:</span>
+                    <span class="detail-value">${order.garmentType?.replace('-', ' ')?.replace(/\b\w/g, l => l.toUpperCase())}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Expected Delivery:</span>
+                    <span class="detail-value">${new Date(order.expectedDeliveryDate).toLocaleDateString()}</span>
+                </div>
+                ${order.specialInstructions ? `
+                <div class="detail-row">
+                    <span class="detail-label">Special Instructions:</span>
+                    <span class="detail-value">${order.specialInstructions}</span>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function displayMeasurements(measurements) {
+            if (!measurements || Object.keys(measurements).length === 0) {
+                document.getElementById('measurementsSection').style.display = 'none';
+                return;
+            }
+
+            const measurementsDiv = document.getElementById('measurementsList');
+            const measurementItems = Object.entries(measurements).map(([key, value]) => `
+                <div class="measurement-item">
+                    <strong>${key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> ${value}"
+                </div>
+            `).join('');
+
+            measurementsDiv.innerHTML = `
+                <div class="measurement-grid">
+                    ${measurementItems}
+                </div>
+            `;
+        }
+
+        function displayFabricDetails(fabricDetails) {
+            if (!fabricDetails || Object.keys(fabricDetails).length === 0) {
+                document.getElementById('fabricSection').style.display = 'none';
+                return;
+            }
+
+            const fabricDiv = document.getElementById('fabricDetails');
+            fabricDiv.innerHTML = `
+                <div class="fabric-details">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Provider:</strong> ${fabricDetails.provider === 'customer' ? 'Customer Provided' : 'Tailor Provided'}<br>
+                            <strong>Type:</strong> ${fabricDetails.type || 'Not specified'}<br>
+                            <strong>Color:</strong> ${fabricDetails.color || 'Not specified'}
+                            ${fabricDetails.secondaryColor ? ` / ${fabricDetails.secondaryColor}` : ''}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Pattern:</strong> ${fabricDetails.pattern || 'Not specified'}<br>
+                            <strong>Quantity:</strong> ${fabricDetails.quantity || 'Not specified'} meters<br>
+                            <strong>Weight:</strong> ${fabricDetails.weight || 'Not specified'}
+                        </div>
+                    </div>
+                    ${fabricDetails.finishing && fabricDetails.finishing.length > 0 ? `
+                        <div class="mt-2">
+                            <strong>Finishing:</strong> ${fabricDetails.finishing.join(', ')}
+                        </div>
+                    ` : ''}
+                    ${fabricDetails.careInstructions ? `
+                        <div class="mt-2">
+                            <strong>Care Instructions:</strong> ${fabricDetails.careInstructions}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.querySelector('.success-body').innerHTML = `
+                <div class="alert alert-danger text-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${message}
+                    <br><br>
+                    <a href="/customer-dashboard.html" class="btn btn-primary">Return to Dashboard</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

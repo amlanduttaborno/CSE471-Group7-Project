@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tailor Craft - Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box" id="authBox">
+      <a href="/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Home
+      </a>
+      <div id="adminLoginForm">
+        <h2 class="form-title">Welcome Back!</h2>
+        <p class="form-subtitle">Log in to your admin account</p>
+        <form id="adminLoginFormElement">
+          <div class="form-group">
+            <label for="adminEmail">Email</label>
+            <input type="email" id="adminEmail" class="form-control" required placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <div class="password-container">
+              <input type="password" id="adminPassword" class="form-control" required placeholder="Enter your password">
+              <i class="fas fa-eye password-toggle" onclick="togglePasswordVisibility('adminPassword')"></i>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <div class="auth-links">
+          <p>Don't have an admin account? <a href="#" id="showAdminRegister">Register as Admin</a></p>
+          <p><a href="/forgot-password.html">Forgot Password?</a></p>
+        </div>
+      </div>
+      <div id="admin-response" class="response-message"></div>
+      <!-- Admin Registration Form (Hidden by Default) -->
+      <div id="adminRegisterForm" style="display:none;">
+        <h2 class="form-title">Admin Registration</h2>
+        <p class="form-subtitle">Register a new admin account</p>
+        <form id="adminRegisterFormElement">
+          <div class="form-group">
+            <label for="adminRegName">Full Name</label>
+            <input type="text" id="adminRegName" class="form-control" required placeholder="Enter your full name">
+          </div>
+          <div class="form-group">
+            <label for="adminRegEmail">Email</label>
+            <input type="email" id="adminRegEmail" class="form-control" required placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="adminRegPassword">Password</label>
+            <div class="password-container">
+              <input type="password" id="adminRegPassword" class="form-control" required placeholder="Create a password">
+              <i class="fas fa-eye password-toggle" onclick="togglePasswordVisibility('adminRegPassword')"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="adminCode">Admin Code</label>
+            <input type="text" id="adminCode" class="form-control" required placeholder="Enter admin code">
+            <small class="form-text text-muted">Ask the system owner for the admin code.</small>
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+          <div class="auth-links">
+            <p>Already have an admin account? <a href="#" id="showAdminLogin">Login</a></p>
+          </div>
+        </form>
+      </div>
+      <!-- Email Verification Form (Hidden by Default) -->
+      <div id="adminVerifyForm" style="display:none;">
+        <h2 class="form-title">Verify Your Email</h2>
+        <p class="form-subtitle">Enter the OTP sent to your email</p>
+        <form id="adminVerifyFormElement">
+          <div class="form-group">
+            <label for="adminVerifyOTP">Verification Code (OTP)</label>
+            <input type="text" id="adminVerifyOTP" class="form-control" required placeholder="Enter OTP">
+          </div>
+          <button type="submit" class="btn btn-primary">Verify Email</button>
+        </form>
+        <div class="auth-links">
+          <p><a href="#" id="showAdminLoginFromVerify">Back to Login</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Toggle between admin login and registration forms
+    document.getElementById('showAdminRegister').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('adminLoginForm').style.display = 'none';
+      document.getElementById('adminRegisterForm').style.display = 'block';
+      document.getElementById('admin-response').innerHTML = '';
+    });
+    document.getElementById('showAdminLogin').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('adminRegisterForm').style.display = 'none';
+      document.getElementById('adminLoginForm').style.display = 'block';
+      document.getElementById('admin-response').innerHTML = '';
+    });
+    document.getElementById('showAdminLoginFromVerify').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('adminVerifyForm').style.display = 'none';
+      document.getElementById('adminLoginForm').style.display = 'block';
+      document.getElementById('admin-response').innerHTML = '';
+    });
+
+    // Admin registration handler
+    document.getElementById('adminRegisterFormElement').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('adminRegName').value;
+      const email = document.getElementById('adminRegEmail').value;
+      const password = document.getElementById('adminRegPassword').value;
+      const adminCode = document.getElementById('adminCode').value;
+      const responseDiv = document.getElementById('admin-response');
+      responseDiv.innerHTML = '';
+      // Change this code to your secret admin code!
+      const SECRET_ADMIN_CODE = 'MySuperSecretAdmin2025'; // <-- Set your strong admin code here
+      if (adminCode !== SECRET_ADMIN_CODE) {
+        responseDiv.className = 'response-message error';
+        responseDiv.innerHTML = 'Invalid admin code.';
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:3000/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, isAdmin: true })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
+          responseDiv.className = 'response-message success';
+          responseDiv.innerHTML = 'Admin registered successfully! Please verify your email.';
+          showVerifyForm();
+        } else {
+          responseDiv.className = 'response-message error';
+          responseDiv.innerHTML = data.message || 'Registration failed';
+        }
+      } catch (err) {
+        responseDiv.className = 'response-message error';
+        responseDiv.innerHTML = err.message;
+      }
+    });
+    // Show verify form after registration
+    function showVerifyForm() {
+      document.getElementById('adminRegisterForm').style.display = 'none';
+      document.getElementById('adminLoginForm').style.display = 'none';
+      document.getElementById('adminVerifyForm').style.display = 'block';
+      document.getElementById('admin-response').innerHTML = '';
+    }
+    // Email verification handler
+    document.getElementById('adminVerifyFormElement').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const otp = document.getElementById('adminVerifyOTP').value;
+      const token = localStorage.getItem('token');
+      const responseDiv = document.getElementById('admin-response');
+      responseDiv.innerHTML = '';
+      try {
+        const res = await fetch('http://localhost:3000/api/users/verify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          responseDiv.className = 'response-message success';
+          responseDiv.innerHTML = 'Email verified successfully! You can now log in.';
+          setTimeout(() => {
+            document.getElementById('adminVerifyForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'block';
+          }, 1500);
+        } else {
+          responseDiv.className = 'response-message error';
+          responseDiv.innerHTML = data.message || 'Verification failed';
+        }
+      } catch (err) {
+        responseDiv.className = 'response-message error';
+        responseDiv.innerHTML = err.message;
+      }
+    });
+    // Password visibility toggle function
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = input.nextElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    document.getElementById('adminLoginFormElement').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      const responseDiv = document.getElementById('admin-response');
+      responseDiv.innerHTML = '';
+      try {
+        const res = await fetch('http://localhost:3000/api/users/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        const user = data.data?.user;
+        if (res.ok && (user?.isAdmin || user?.role === 'admin')) {
+          localStorage.setItem('token', data.data?.token);
+          responseDiv.className = 'response-message success';
+          responseDiv.innerHTML = 'Login successful! Redirecting...';
+          setTimeout(() => { window.location.href = 'admin-dashboard.html'; }, 1000);
+        } else if (res.ok) {
+          responseDiv.className = 'response-message error';
+          responseDiv.innerHTML = 'You are not an admin.';
+        } else {
+          responseDiv.className = 'response-message error';
+          responseDiv.innerHTML = data.message || 'Login failed';
+        }
+      } catch (err) {
+        responseDiv.className = 'response-message error';
+        responseDiv.innerHTML = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TailorCraft - Custom Bangladeshi Women's Fashion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+        <!-- Navigation Bar -->
+        <nav style="background:#fff; border-bottom:1px solid #eee; padding:0.5em 2em; display:flex; gap:2em; align-items:center; font-family:Inter,sans-serif;">
+            <a href="index.html" style="font-weight:600; color:#333; text-decoration:none;">Home</a>
+            <a href="customer-dashboard.html" style="color:#333; text-decoration:none;">Customer Dashboard</a>
+            <a href="tailor-dashboard.html" style="color:#333; text-decoration:none;">Tailor Dashboard</a>
+            <a href="admin-dashboard.html" style="color:#333; text-decoration:none;">Admin Dashboard</a>
+            <!-- Add more links as needed -->
+        </nav>
+        <div class="landing-container">
+        <!-- Background Elements -->
+        <div class="bg-elements">
+            <!-- Tailoring Elements - First Layer -->
+            <i class="fas fa-scissors bg-element scissors" style="top: 10%; left: 10%;"></i>
+            <i class="fas fa-ruler bg-element tape" style="top: 20%; right: 15%;"></i>
+            <i class="fas fa-tshirt bg-element thread" style="bottom: 15%; left: 15%;"></i>
+            <i class="fas fa-cut bg-element scissors" style="top: 30%; left: 80%;"></i>
+            <i class="fas fa-tape bg-element tape" style="bottom: 25%; right: 20%;"></i>
+            <i class="fas fa-socks bg-element thread" style="top: 75%; left: 25%;"></i>
+            <i class="fas fa-hat-cowboy bg-element" style="bottom: 10%; right: 10%;"></i>
+            <i class="fas fa-mitten bg-element" style="top: 60%; right: 30%;"></i>
+            
+            <!-- Additional Tailoring Elements - Second Layer -->
+            <i class="fas fa-ruler-vertical bg-element tape" style="top: 45%; left: 5%;"></i>
+            <i class="fas fa-ruler-horizontal bg-element tape" style="bottom: 40%; right: 8%;"></i>
+            <i class="fas fa-vest bg-element thread" style="top: 15%; right: 40%;"></i>
+            <i class="fas fa-shoe-prints bg-element" style="bottom: 30%; left: 40%;"></i>
+            <i class="fas fa-gift bg-element" style="top: 85%; right: 15%;"></i>
+            <i class="fas fa-graduation-cap bg-element" style="top: 5%; left: 45%;"></i>
+            
+            <!-- More Elements - Third Layer -->
+            <i class="fas fa-heart bg-element thread" style="top: 35%; left: 35%;"></i>
+            <i class="fas fa-star bg-element" style="bottom: 20%; left: 60%;"></i>
+            <i class="fas fa-crown bg-element" style="top: 25%; right: 55%;"></i>
+            <i class="fas fa-gem bg-element" style="bottom: 45%; left: 75%;"></i>
+            <i class="fas fa-palette bg-element" style="top: 70%; right: 45%;"></i>
+            <i class="fas fa-paint-brush bg-element" style="top: 40%; right: 70%;"></i>
+            
+            <!-- Extra Elements - Fourth Layer -->
+            <i class="fas fa-camera bg-element" style="bottom: 60%; left: 20%;"></i>
+            <i class="fas fa-magic bg-element" style="top: 55%; left: 65%;"></i>
+            <i class="fas fa-sparkles bg-element" style="bottom: 15%; right: 35%;"></i>
+            <i class="fas fa-shirt bg-element thread" style="top: 80%; right: 25%;"></i>
+            <i class="fas fa-pen-fancy bg-element" style="bottom: 35%; right: 60%;"></i>
+            <i class="fas fa-wand-magic-sparkles bg-element" style="top: 65%; left: 50%;"></i>
+        </div>
+        
+        <div class="landing-box">
+            <h1 class="landing-title">Welcome to TailorCraft</h1>
+            <p class="landing-subtitle">Your destination for custom Bangladeshi women's fashion. Connect with skilled tailors specializing in kurti, salwar-kameez, lehenga, and traditional wear.</p>
+            
+            <div class="options-container">
+                <div class="option-card">
+                    <i class="fas fa-user option-icon"></i>
+                    <h2>Women's Fashion</h2>
+                    <p>Find the perfect tailor for your traditional and modern dress needs</p>
+                    <a href="/customer-auth.html" class="btn btn-primary">Get Started</a>
+                </div>
+
+                <div class="option-card">
+                    <i class="fas fa-cut option-icon"></i>
+                    <h2>Women's Tailor</h2>
+                    <p>Showcase your skills in crafting beautiful dresses for women</p>
+                    <a href="/tailor-auth.html" class="btn btn-primary">Join as Tailor</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const responseDiv = document.getElementById('response');
+        let currentToken = '';
+
+        // Toggle between Login and Register forms
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            responseDiv.innerHTML = '';
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            responseDiv.innerHTML = '';
+        });
+
+        // Register Form Handler
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${API_URL}/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentToken = data.token;
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('otpForm').style.display = 'block';
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = 'Please check your email for OTP';
+                } else {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = error.message;
+            }
+        });
+
+        // Login Form Handler
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${API_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = 'Login successful!';
+                    // Store token and redirect to dashboard or profile page
+                    localStorage.setItem('token', data.token);
+                    // TODO: Redirect to profile page
+                } else {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = error.message;
+            }
+        });
+
+        // OTP Verification Handler
+        document.getElementById('otpFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${API_URL}/users/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        otp: document.getElementById('otp').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = 'Email verified successfully! Please login.';
+                    setTimeout(() => {
+                        document.getElementById('otpForm').style.display = 'none';
+                        document.getElementById('loginForm').style.display = 'block';
+                    }, 2000);
+                } else {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

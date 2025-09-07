@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Review System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Review System Test</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Step 1: Login</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="customer@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="password123">
+                        </div>
+                        <button class="btn btn-primary" onclick="loginUser()">Login</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Step 2: Create Test Order</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="tailorId" class="form-label">Tailor ID</label>
+                            <input type="text" class="form-control" id="tailorId" placeholder="Enter tailor ID">
+                        </div>
+                        <button class="btn btn-success" onclick="createTestOrder()">Create Test Delivered Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Step 3: Test Review System</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-info me-2" onclick="checkOrders()">Check Orders</button>
+                        <button class="btn btn-warning me-2" onclick="checkReviewEligibility()">Check Review Eligibility</button>
+                        <button class="btn btn-primary" onclick="openDashboard()">Open Customer Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre id="results" class="bg-light p-3" style="white-space: pre-wrap;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            results.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                log('Please enter email and password');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                log('Login response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.status === 'success') {
+                    localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('userType', 'customer');
+                    log('✅ Login successful! Token saved.');
+                } else {
+                    log('❌ Login failed: ' + data.message);
+                }
+            } catch (error) {
+                log('💥 Login error: ' + error.message);
+            }
+        }
+
+        async function createTestOrder() {
+            const tailorId = document.getElementById('tailorId').value;
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                log('❌ Please login first');
+                return;
+            }
+            
+            if (!tailorId) {
+                log('❌ Please enter a tailor ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/orders/test/delivered', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ tailorId })
+                });
+                
+                const data = await response.json();
+                log('Test order response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.status === 'success') {
+                    log('✅ Test delivered order created! Order ID: ' + data.data.order._id);
+                } else {
+                    log('❌ Failed to create test order: ' + data.message);
+                }
+            } catch (error) {
+                log('💥 Create order error: ' + error.message);
+            }
+        }
+
+        async function checkOrders() {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                log('❌ Please login first');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/orders/user', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                const data = await response.json();
+                log('Orders response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.status === 'success') {
+                    const deliveredOrders = data.data.orders.filter(order => order.status === 'Delivered');
+                    log('✅ Total orders: ' + data.data.orders.length);
+                    log('✅ Delivered orders: ' + deliveredOrders.length);
+                } else {
+                    log('❌ Failed to get orders: ' + data.message);
+                }
+            } catch (error) {
+                log('💥 Get orders error: ' + error.message);
+            }
+        }
+
+        async function checkReviewEligibility() {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                log('❌ Please login first');
+                return;
+            }
+            
+            try {
+                // First get orders
+                const ordersResponse = await fetch('/api/orders/user', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                const ordersData = await ordersResponse.json();
+                
+                if (ordersData.status === 'success') {
+                    const deliveredOrders = ordersData.data.orders.filter(order => order.status === 'Delivered');
+                    log('Found ' + deliveredOrders.length + ' delivered orders');
+                    
+                    for (const order of deliveredOrders) {
+                        const eligibilityResponse = await fetch(`/api/reviews/check-eligibility/${order._id}`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        });
+                        
+                        const eligibilityData = await eligibilityResponse.json();
+                        log(`Order ${order._id}: ${eligibilityData.data.eligible ? 'ELIGIBLE' : 'NOT ELIGIBLE'} for review`);
+                        if (!eligibilityData.data.eligible) {
+                            log(`  Reason: ${eligibilityData.data.reason || 'Unknown'}`);
+                        }
+                    }
+                } else {
+                    log('❌ Failed to get orders: ' + ordersData.message);
+                }
+            } catch (error) {
+                log('💥 Check eligibility error: ' + error.message);
+            }
+        }
+
+        function openDashboard() {
+            window.open('/customer-dashboard.html#reviews', '_blank');
+        }
+
+        // Auto-fill with test data
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Review System Test Page Loaded');
+            log('Instructions:');
+            log('1. Enter customer credentials and login');
+            log('2. Enter a valid tailor ID and create test order');
+            log('3. Check orders and review eligibility');
+            log('4. Open customer dashboard to test reviews');
+        });
+    </script>
+</body>
+</html>

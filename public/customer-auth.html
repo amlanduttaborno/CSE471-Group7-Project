@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tailor Craft - Customer Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            color: #666;
+        }
+        .password-requirements {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        .password-requirements ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        .password-requirements li.valid {
+            color: green;
+        }
+        .password-requirements li.invalid {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box" id="authBox">
+            <a href="/" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            
+            <!-- Login Form (Default View) -->
+            <div id="loginForm">
+                <h2 class="form-title">Welcome Back!</h2>
+                <p class="form-subtitle">Log in to your customer account</p>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" class="form-control" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="loginPassword" class="form-control" required placeholder="Enter your password">
+                            <i class="fas fa-eye password-toggle" onclick="togglePasswordVisibility('loginPassword')"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="auth-links">
+                        <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
+                        <p><a href="/forgot-password.html">Forgot Password?</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Registration Form (Hidden by Default) -->
+            <div id="registerForm" style="display: none;">
+                <h2 class="form-title">Create Customer Account</h2>
+                <p class="form-subtitle">Join Tailor Craft to find your perfect tailor</p>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="password" class="form-control" required 
+                                placeholder="Create a password"
+                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                title="Password must contain at least 8 characters, including uppercase, lowercase, number and special character">
+                            <i class="fas fa-eye password-toggle" onclick="togglePasswordVisibility('password')"></i>
+                        </div>
+                        <div class="password-requirements">
+                            Password must contain:
+                            <ul>
+                                <li id="length">At least 8 characters</li>
+                                <li id="uppercase">One uppercase letter</li>
+                                <li id="lowercase">One lowercase letter</li>
+                                <li id="number">One number</li>
+                                <li id="special">One special character</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                    <div class="auth-links">
+                        <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- OTP Verification Form (Hidden by Default) -->
+            <div id="otpForm" style="display: none;">
+                <h2 class="form-title">Verify Your Email</h2>
+                <p class="form-subtitle">We've sent a verification code to your email</p>
+                <form id="otpFormElement">
+                    <div class="form-group">
+                        <label for="otp">Verification Code</label>
+                        <input type="text" id="otp" class="form-control" required placeholder="Enter 6-digit code">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Verify Email</button>
+                </form>
+            </div>
+
+            <div id="response" class="response-message"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        const AUTH_URL = `${API_URL}/api/Users`;  // For authentication routes
+        const USER_URL = `${API_URL}/api/Users`;  // For user-specific routes
+
+        // Password visibility toggle function
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Password validation function
+        function validatePassword(password) {
+            const validations = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[@$!%*?&]/.test(password)
+            };
+
+            // Update UI for each requirement
+            Object.keys(validations).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (validations[key]) {
+                        element.classList.add('valid');
+                        element.classList.remove('invalid');
+                    } else {
+                        element.classList.add('invalid');
+                        element.classList.remove('valid');
+                    }
+                }
+            });
+
+            return Object.values(validations).every(v => v);
+        }
+
+        // Add password validation event listener
+        document.getElementById('password')?.addEventListener('input', function() {
+            validatePassword(this.value);
+        });
+        const responseDiv = document.getElementById('response');
+        let currentToken = '';
+
+        // Toggle between Login and Register forms
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            responseDiv.innerHTML = '';
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            responseDiv.innerHTML = '';
+        });
+
+        // Register Form Handler
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${USER_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok || (data.token && data.message.includes('verification'))) {
+                    currentToken = data.token;
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('otpForm').style.display = 'block';
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = data.message || 'Please check your email for the verification code';
+                } else {
+                    // If user already exists and is verified, show login form
+                    if (data.message.includes('Please login instead')) {
+                        document.getElementById('registerForm').style.display = 'none';
+                        document.getElementById('loginForm').style.display = 'block';
+                    }
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = 'An error occurred. Please try again.';
+            }
+        });
+
+        // Login Form Handler
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${USER_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = data.message || 'Login successful! Redirecting...';
+                    localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('userType', 'customer');
+                    // Redirect to customer dashboard after successful login
+                    setTimeout(() => {
+                        window.location.href = '/customer-dashboard.html';
+                    }, 1500);
+                } else if (data.data && data.data.requiresVerification) {
+                    // User needs email verification
+                    currentToken = data.token;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('otpForm').style.display = 'block';
+                    responseDiv.className = 'response-message info';
+                    responseDiv.innerHTML = data.message;
+                } else {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = error.message || 'An error occurred. Please try again. Check if the server is running on port 3000.';
+            }
+        });
+
+        // OTP Verification Handler
+        document.getElementById('otpFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${USER_URL}/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        otp: document.getElementById('otp').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = 'Email verified successfully! Please login.';
+                    setTimeout(() => {
+                        document.getElementById('otpForm').style.display = 'none';
+                        document.getElementById('loginForm').style.display = 'block';
+                    }, 2000);
+                } else {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = data.message;
+                }
+            } catch (error) {
+                responseDiv.className = 'response-message error';
+                responseDiv.innerHTML = error.message;
+            }
+        });
+    </script>
+</body>
+</html>
