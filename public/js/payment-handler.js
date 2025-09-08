@@ -7,7 +7,7 @@ class PaymentHandler {
         event.preventDefault();
         try {
             // Create order first
-            const orderResponse = await fetch('/api/orders/create', {
+            const orderResponse = await fetch('/api/orders/', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${this.token}`,
@@ -21,8 +21,17 @@ class PaymentHandler {
                 throw new Error(orderResult.message || 'Failed to create order');
             }
 
-            // Show payment options
-            this.showPaymentOptions(orderResult.data.order);
+            console.log('Order created successfully:', orderResult);
+
+            // Redirect to payment receipt page
+            if (orderResult.redirectTo) {
+                window.location.href = orderResult.redirectTo;
+            } else if (orderResult.data && orderResult.data.orderId) {
+                window.location.href = `/payment-receipt.html?orderId=${orderResult.data.orderId}`;
+            } else {
+                // Fallback to payment options
+                this.showPaymentOptions(orderResult.data.order);
+            }
         } catch (error) {
             console.error('Order creation failed:', error);
             throw error;

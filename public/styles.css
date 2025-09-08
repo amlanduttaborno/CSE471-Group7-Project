@@ -1,3 +1,25 @@
+/* Loading Overlay */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.loading-spinner {
+    padding: 2rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Modern and Elegant Styling */
 :root {
     --primary-color: #2c3e50;
@@ -18,6 +40,73 @@ body {
     background-color: var(--gray-color);
     color: var(--dark-color);
     min-height: 100vh;
+}
+
+/* Rating Stars */
+.rating-stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star:hover,
+.star.active {
+    color: #ffc107;
+}
+
+.star:hover ~ .star {
+    color: #ddd;
+}
+
+.review-stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.review-stars .star {
+    font-size: 1rem;
+    color: #ffc107;
+    cursor: default;
+}
+
+.review-stars .star.empty {
+    color: #ddd;
+}
+
+.review-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.eligible-order-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.eligible-order-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #007bff;
 }
 
 .container {
@@ -318,10 +407,151 @@ body {
     color: #721c24;
 }
 
+/* Tailor Selection Cards */
+.card.selected {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25) !important;
+    background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+.form-check-label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #0d6efd;
+}
+
+/* Filter Controls */
+.filter-section .form-control:focus,
+.filter-section .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .auth-box {
         margin: 1rem;
         padding: 1.5rem;
     }
+}
+
+/* Professional Order Status Badges */
+.badge.bg-warning {
+    background-color: #ff8c00 !important; /* Orange for pending/alterations */
+    color: white !important;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important; /* Green for accepted/completed */
+    color: white !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important; /* Teal for fabric collection/ready for trial */
+    color: white !important;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important; /* Blue for in progress */
+    color: white !important;
+}
+
+.badge.bg-dark {
+    background-color: #343a40 !important; /* Dark for delivered */
+    color: white !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important; /* Red for cancelled */
+    color: white !important;
+}
+
+/* Status badge animations and effects */
+.order-card .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card .badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Filter button enhancements */
+.list-group-item.active {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item.active:hover {
+    background-color: #0056b3 !important;
+}
+
+/* Order card enhancements */
+.order-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Status-specific left border colors */
+.order-card[data-status="Pending"] {
+    border-left-color: #ff8c00;
+}
+
+.order-card[data-status="Accepted"] {
+    border-left-color: #28a745;
+}
+
+.order-card[data-status="Fabric Collection"] {
+    border-left-color: #17a2b8;
+}
+
+.order-card[data-status="In Progress"] {
+    border-left-color: #007bff;
+}
+
+.order-card[data-status="Ready for Trial"] {
+    border-left-color: #17a2b8;
+}
+
+.order-card[data-status="Alterations"] {
+    border-left-color: #ff8c00;
+}
+
+.order-card[data-status="Completed"] {
+    border-left-color: #28a745;
+}
+
+.order-card[data-status="Delivered"] {
+    border-left-color: #343a40;
+}
+
+.order-card[data-status="Cancelled"] {
+    border-left-color: #dc3545;
 }

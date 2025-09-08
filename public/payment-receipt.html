@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - TailorCraft</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .receipt-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .receipt-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .receipt-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .receipt-body {
+            padding: 40px;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .detail-value {
+            color: #212529;
+        }
+        
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .measurement-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .payment-summary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .payment-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .fabric-details {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+            }
+            .receipt-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            .action-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading receipt details...</p>
+        </div>
+        
+        <!-- Receipt Content -->
+        <div id="receiptContent" style="display: none;">
+            <div class="receipt-header">
+                <i class="fas fa-receipt receipt-icon"></i>
+                <h2>Payment Receipt</h2>
+                <p class="mb-0">Order Confirmation & Payment Details</p>
+            </div>
+            
+            <div class="receipt-body">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h4 class="mb-3"><i class="fas fa-box text-primary me-2"></i>Order Summary</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Order ID:</span>
+                        <span class="detail-value" id="orderId">#ORD001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Order Date:</span>
+                        <span class="detail-value" id="orderDate">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Garment Type:</span>
+                        <span class="detail-value" id="garmentType">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tailor:</span>
+                        <span class="detail-value" id="tailorName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Expected Delivery:</span>
+                        <span class="detail-value" id="deliveryDate">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Order Status:</span>
+                        <span class="detail-value">
+                            <span class="status-badge status-pending" id="orderStatus">Pending</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Customer Information -->
+                <div class="order-summary">
+                    <h4 class="mb-3"><i class="fas fa-user text-primary me-2"></i>Customer Information</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value" id="customerName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value" id="customerEmail">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value" id="customerPhone">-</span>
+                    </div>
+                </div>
+                
+                <!-- Measurements -->
+                <div class="order-summary" id="measurementsSection">
+                    <h4 class="mb-3"><i class="fas fa-ruler text-primary me-2"></i>Measurements</h4>
+                    <div class="measurements-grid" id="measurementsGrid">
+                        <!-- Measurements will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Fabric Details -->
+                <div class="fabric-details" id="fabricSection">
+                    <h4 class="mb-3"><i class="fas fa-cut text-primary me-2"></i>Fabric Details</h4>
+                    <div id="fabricDetailsGrid">
+                        <!-- Fabric details will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Special Instructions -->
+                <div class="order-summary" id="instructionsSection" style="display: none;">
+                    <h4 class="mb-3"><i class="fas fa-comment-alt text-primary me-2"></i>Special Instructions</h4>
+                    <p id="specialInstructions" class="mb-0">-</p>
+                </div>
+                
+                <!-- Payment Summary -->
+                <div class="payment-summary">
+                    <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <h4>Payment Information</h4>
+                    <div class="payment-amount">৳<span id="paymentAmount">0.00</span></div>
+                    <p class="mb-0">Payment Status: <strong id="paymentStatus">Pending</strong></p>
+                    <small>Transaction will be processed securely</small>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Receipt
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="goToDashboard()">
+                        <i class="fas fa-home me-2"></i>Back to Dashboard
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="proceedToPayment()">
+                        <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="errorState" style="display: none;" class="text-center p-5">
+            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Unable to Load Receipt</h4>
+            <p class="text-muted">There was an error loading the order details.</p>
+            <button type="button" class="btn btn-primary" onclick="goToDashboard()">
+                Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let orderData = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReceiptData();
+        });
+        
+        function loadReceiptData() {
+            // Get order ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+            
+            if (!orderId) {
+                showError('No order ID provided');
+                return;
+            }
+            
+            console.log('Loading receipt for order:', orderId);
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showError('Authentication required');
+                return;
+            }
+            
+            // Fetch order details
+            fetch(`/api/orders/${orderId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch order details');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Order data received:', data);
+                if (data.status === 'success' && data.data.order) {
+                    orderData = data.data.order;
+                    populateReceiptData(orderData);
+                    showReceipt();
+                } else {
+                    throw new Error('Invalid response data');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading receipt:', error);
+                showError(error.message);
+            });
+        }
+        
+        function populateReceiptData(order) {
+            // Order Summary
+            document.getElementById('orderId').textContent = '#' + order._id.slice(-8).toUpperCase();
+            document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('en-GB');
+            document.getElementById('garmentType').textContent = order.garmentType || order.clothType || '-';
+            document.getElementById('tailorName').textContent = order.tailor?.name || 'Loading...';
+            document.getElementById('deliveryDate').textContent = order.expectedDeliveryDate ? 
+                new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB') : '-';
+            document.getElementById('orderStatus').textContent = order.status || 'Pending';
+            
+            // Customer Information (fetch from user token)
+            populateCustomerInfo();
+            
+            // Measurements
+            if (order.measurements && Object.keys(order.measurements).length > 0) {
+                populateMeasurements(order.measurements);
+            } else {
+                document.getElementById('measurementsSection').style.display = 'none';
+            }
+            
+            // Fabric Details
+            if (order.fabricDetails) {
+                populateFabricDetails(order.fabricDetails);
+            } else {
+                document.getElementById('fabricSection').style.display = 'none';
+            }
+            
+            // Special Instructions
+            if (order.specialInstructions && order.specialInstructions.trim()) {
+                document.getElementById('specialInstructions').textContent = order.specialInstructions;
+                document.getElementById('instructionsSection').style.display = 'block';
+            }
+            
+            // Payment Information
+            const amount = order.estimatedPrice || order.totalAmount || 0;
+            document.getElementById('paymentAmount').textContent = amount.toLocaleString('en-BD', { minimumFractionDigits: 2 });
+            document.getElementById('paymentStatus').textContent = order.paymentStatus || 'Pending';
+        }
+        
+        function populateCustomerInfo() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    document.getElementById('customerName').textContent = payload.name || '-';
+                    document.getElementById('customerEmail').textContent = payload.email || '-';
+                    // Phone would need to be fetched from user profile
+                    document.getElementById('customerPhone').textContent = 'Available in profile';
+                } catch (error) {
+                    console.error('Error parsing token:', error);
+                }
+            }
+        }
+        
+        function populateMeasurements(measurements) {
+            const grid = document.getElementById('measurementsGrid');
+            grid.innerHTML = '';
+            
+            const measurementLabels = {
+                chest: 'Chest',
+                waist: 'Waist',
+                hip: 'Hip',
+                shoulderWidth: 'Shoulder Width',
+                sleeveLength: 'Sleeve Length',
+                armLength: 'Arm Length',
+                neckCircumference: 'Neck',
+                inseam: 'Inseam',
+                outseam: 'Outseam',
+                thigh: 'Thigh',
+                calf: 'Calf',
+                ankle: 'Ankle',
+                frontRise: 'Front Rise',
+                backRise: 'Back Rise',
+                jacketLength: 'Jacket Length',
+                pantLength: 'Pant Length'
+            };
+            
+            for (const [key, value] of Object.entries(measurements)) {
+                if (value && value !== '' && key !== '_id' && key !== '__v') {
+                    const measurementDiv = document.createElement('div');
+                    measurementDiv.className = 'measurement-item';
+                    measurementDiv.innerHTML = `
+                        <div class="detail-label">${measurementLabels[key] || key}</div>
+                        <div class="detail-value">${value} inches</div>
+                    `;
+                    grid.appendChild(measurementDiv);
+                }
+            }
+        }
+        
+        function populateFabricDetails(fabricDetails) {
+            const grid = document.getElementById('fabricDetailsGrid');
+            grid.innerHTML = '';
+            
+            const fabricLabels = {
+                provider: 'Provider',
+                type: 'Type',
+                color: 'Color',
+                secondaryColor: 'Secondary Color',
+                pattern: 'Pattern',
+                weight: 'Weight',
+                texture: 'Texture',
+                quantity: 'Quantity',
+                width: 'Width',
+                budget: 'Budget',
+                source: 'Source'
+            };
+            
+            for (const [key, value] of Object.entries(fabricDetails)) {
+                if (value && value !== '' && key !== '_id' && key !== '__v' && !Array.isArray(value)) {
+                    const detailRow = document.createElement('div');
+                    detailRow.className = 'detail-row';
+                    detailRow.innerHTML = `
+                        <span class="detail-label">${fabricLabels[key] || key}:</span>
+                        <span class="detail-value">${value}</span>
+                    `;
+                    grid.appendChild(detailRow);
+                }
+            }
+        }
+        
+        function showReceipt() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('receiptContent').style.display = 'block';
+        }
+        
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            console.error('Receipt error:', message);
+        }
+        
+        function goToDashboard() {
+            window.location.href = '/customer-dashboard.html';
+        }
+        
+        function proceedToPayment() {
+            if (orderData) {
+                // Redirect to payment processing with order details
+                const paymentUrl = `/payment.html?orderId=${orderData._id}&amount=${orderData.estimatedPrice || orderData.totalAmount}`;
+                window.location.href = paymentUrl;
+            } else {
+                alert('Order data not available. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

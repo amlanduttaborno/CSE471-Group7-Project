@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - TailorCraft</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/order.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">Place Your Order</h2>
+        <div id="notifications"></div>
+
+        <form id="orderForm" class="needs-validation" novalidate>
+            <!-- Tailor Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Select Tailor</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Search and Filter Section -->
+                    <div class="row mb-4 filter-section">
+                        <div class="col-md-3">
+                            <label class="form-label">Search by Name</label>
+                            <input type="text" class="form-control" id="tailorNameSearch" 
+                                   placeholder="Enter tailor name..." onkeyup="filterTailors()">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Specialization</label>
+                            <select class="form-select" id="specializationFilter" 
+                                    onchange="filterTailors()">
+                                <option value="">All Specializations</option>
+                                <option value="Kurti">Kurti</option>
+                                <option value="Salwar Kameez">Salwar Kameez</option>
+                                <option value="Lehenga">Lehenga</option>
+                                <option value="Sharee">Sharee</option>
+                                <option value="Anarkali">Anarkali</option>
+                                <option value="Palazzo">Palazzo</option>
+                                <option value="Panjabi">Panjabi</option>
+                                <option value="Bridal Wear">Bridal Wear</option>
+                                <option value="Traditional Wear">Traditional Wear</option>
+                                <option value="Alterations">Alterations</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Experience (Years)</label>
+                            <select class="form-select" id="experienceFilter" 
+                                    onchange="filterTailors()">
+                                <option value="">Any Experience</option>
+                                <option value="1-5">1-5 years</option>
+                                <option value="6-10">6-10 years</option>
+                                <option value="11-15">11-15 years</option>
+                                <option value="16+">16+ years</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" id="locationFilter" 
+                                   placeholder="City or area..." onkeyup="filterTailors()">
+                        </div>
+                    </div>
+                    
+                    <!-- Results Summary -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <small class="text-muted" id="tailorsCount">Loading tailors...</small>
+                            <button type="button" class="btn btn-sm btn-outline-secondary float-end" 
+                                    onclick="clearFilters()">Clear Filters</button>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3" id="tailorsList">
+                        <!-- Tailors will be loaded here -->
+                        <div class="col-12 text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading tailors...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Garment Type Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Garment Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Garment Type</label>
+                            <select class="form-select" id="garmentType" name="garmentType" required>
+                                <option value="">Select type...</option>
+                                <option value="kurti">Kurti</option>
+                                <option value="salwar-kameez">Salwar Kameez</option>
+                                <option value="sharee-blouse">Sharee Blouse</option>
+                                <option value="lehenga">Lehenga</option>
+                                <option value="burkha">Burkha</option>
+                                <option value="three-piece">Three Piece</option>
+                                <option value="anarkali">Anarkali</option>
+                                <option value="palazzo-set">Palazzo Set</option>
+                                <option value="gharara">Gharara</option>
+                                <option value="sharara">Sharara</option>
+                                <option value="churidar">Churidar</option>
+                                <option value="frock">Frock</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Style</label>
+                            <select class="form-select" name="style">
+                                <option value="">Select style...</option>
+                                <option value="traditional">Traditional</option>
+                                <option value="modern">Modern</option>
+                                <option value="party-wear">Party Wear</option>
+                                <option value="casual">Casual</option>
+                                <option value="formal">Formal</option>
+                                <option value="wedding">Wedding</option>
+                                <option value="festive">Festive</option>
+                                <option value="embroidered">Embroidered</option>
+                                <option value="plain">Plain</option>
+                                <option value="printed">Printed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Measurements -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Measurements</h4>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="loadSavedMeasurements">
+                            <i class="fas fa-download"></i> Load Saved Measurements
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm ms-2" id="saveMeasurements">
+                            <i class="fas fa-save"></i> Save Current Measurements
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="measurementsForm" class="row g-3">
+                        <!-- Measurements will be loaded here based on garment type -->
+                        <div class="col-12 text-center text-muted">
+                            Please select a garment type to see required measurements
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fabric Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Fabric Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="fabric-provider-section">
+                        <label class="form-label">Who will provide the fabric?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fabricProvider" id="customerProvided" value="customer" checked>
+                            <label class="form-check-label" for="customerProvided">
+                                <strong>I will provide the fabric</strong>
+                                <small class="text-muted d-block">You will bring your own fabric to the tailor</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fabricProvider" id="tailorProvided" value="tailor">
+                            <label class="form-check-label" for="tailorProvided">
+                                <strong>Tailor should provide the fabric</strong>
+                                <small class="text-muted d-block">The tailor will source and provide the fabric (additional cost may apply)</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="fabricDetailsSection" class="row g-3 mt-3">
+                        <!-- Fabric Type -->
+                        <div class="col-md-4">
+                            <label class="form-label">Fabric Type *</label>
+                            <select class="form-select" name="fabricType" id="fabricType" required>
+                                <option value="">Select fabric type...</option>
+                                <optgroup label="Natural Fabrics">
+                                    <option value="cotton">Cotton</option>
+                                    <option value="silk">Silk</option>
+                                    <option value="linen">Linen</option>
+                                    <option value="wool">Wool</option>
+                                    <option value="jute">Jute</option>
+                                    <option value="muslin">Muslin</option>
+                                    <option value="khaddar">Khaddar</option>
+                                </optgroup>
+                                <optgroup label="Silk Varieties">
+                                    <option value="raw-silk">Raw Silk</option>
+                                    <option value="tussar-silk">Tussar Silk</option>
+                                    <option value="banarasi-silk">Banarasi Silk</option>
+                                    <option value="georgette">Georgette</option>
+                                    <option value="crepe">Crepe</option>
+                                    <option value="satin">Satin</option>
+                                </optgroup>
+                                <optgroup label="Synthetic Fabrics">
+                                    <option value="polyester">Polyester</option>
+                                    <option value="nylon">Nylon</option>
+                                    <option value="rayon">Rayon</option>
+                                    <option value="viscose">Viscose</option>
+                                    <option value="chiffon">Chiffon</option>
+                                    <option value="organza">Organza</option>
+                                </optgroup>
+                                <optgroup label="Blended Fabrics">
+                                    <option value="cotton-silk">Cotton-Silk</option>
+                                    <option value="cotton-linen">Cotton-Linen</option>
+                                    <option value="poly-cotton">Poly-Cotton</option>
+                                    <option value="viscose-cotton">Viscose-Cotton</option>
+                                </optgroup>
+                                <optgroup label="Special Fabrics">
+                                    <option value="denim">Denim</option>
+                                    <option value="velvet">Velvet</option>
+                                    <option value="brocade">Brocade</option>
+                                    <option value="net">Net</option>
+                                    <option value="lace">Lace</option>
+                                    <option value="chanderi">Chanderi</option>
+                                    <option value="kalamkari">Kalamkari</option>
+                                    <option value="khadi">Khadi</option>
+                                </optgroup>
+                                <option value="other">Other (specify in notes)</option>
+                            </select>
+                        </div>
+
+                        <!-- Color Selection -->
+                        <div class="col-md-4">
+                            <label class="form-label">Primary Color *</label>
+                            <select class="form-select" name="fabricColor" id="fabricColor" required>
+                                <option value="">Select color...</option>
+                                <optgroup label="Basic Colors">
+                                    <option value="white">White</option>
+                                    <option value="black">Black</option>
+                                    <option value="red">Red</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="orange">Orange</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="pink">Pink</option>
+                                    <option value="brown">Brown</option>
+                                    <option value="grey">Grey</option>
+                                    <option value="beige">Beige</option>
+                                </optgroup>
+                                <optgroup label="Shades of Blue">
+                                    <option value="navy-blue">Navy Blue</option>
+                                    <option value="royal-blue">Royal Blue</option>
+                                    <option value="sky-blue">Sky Blue</option>
+                                    <option value="turquoise">Turquoise</option>
+                                    <option value="teal">Teal</option>
+                                </optgroup>
+                                <optgroup label="Shades of Red">
+                                    <option value="maroon">Maroon</option>
+                                    <option value="crimson">Crimson</option>
+                                    <option value="cherry-red">Cherry Red</option>
+                                    <option value="rose">Rose</option>
+                                </optgroup>
+                                <optgroup label="Shades of Green">
+                                    <option value="forest-green">Forest Green</option>
+                                    <option value="olive-green">Olive Green</option>
+                                    <option value="mint-green">Mint Green</option>
+                                    <option value="emerald">Emerald</option>
+                                </optgroup>
+                                <optgroup label="Neutral Tones">
+                                    <option value="cream">Cream</option>
+                                    <option value="ivory">Ivory</option>
+                                    <option value="champagne">Champagne</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="bronze">Bronze</option>
+                                </optgroup>
+                                <option value="multi-color">Multi-Color</option>
+                                <option value="other-color">Other (specify in notes)</option>
+                            </select>
+                        </div>
+
+                        <!-- Secondary Color -->
+                        <div class="col-md-4">
+                            <label class="form-label">Secondary Color (if any)</label>
+                            <select class="form-select" name="secondaryColor" id="secondaryColor">
+                                <option value="">No secondary color</option>
+                                <option value="white">White</option>
+                                <option value="black">Black</option>
+                                <option value="red">Red</option>
+                                <option value="blue">Blue</option>
+                                <option value="green">Green</option>
+                                <option value="yellow">Yellow</option>
+                                <option value="orange">Orange</option>
+                                <option value="purple">Purple</option>
+                                <option value="pink">Pink</option>
+                                <option value="brown">Brown</option>
+                                <option value="grey">Grey</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="other-secondary">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Pattern Selection -->
+                        <div class="col-md-4">
+                            <label class="form-label">Pattern *</label>
+                            <select class="form-select" name="fabricPattern" id="fabricPattern" required>
+                                <option value="">Select pattern...</option>
+                                <option value="solid">Solid/Plain</option>
+                                <optgroup label="Geometric Patterns">
+                                    <option value="stripes">Stripes</option>
+                                    <option value="checks">Checks</option>
+                                    <option value="plaids">Plaids</option>
+                                    <option value="polka-dots">Polka Dots</option>
+                                    <option value="geometric">Geometric</option>
+                                    <option value="diamond">Diamond</option>
+                                    <option value="chevron">Chevron</option>
+                                </optgroup>
+                                <optgroup label="Floral & Nature">
+                                    <option value="floral">Floral</option>
+                                    <option value="rose">Rose</option>
+                                    <option value="leaf">Leaf</option>
+                                    <option value="paisley">Paisley</option>
+                                    <option value="botanical">Botanical</option>
+                                </optgroup>
+                                <optgroup label="Traditional Patterns">
+                                    <option value="block-print">Block Print</option>
+                                    <option value="batik">Batik</option>
+                                    <option value="ikat">Ikat</option>
+                                    <option value="bandhani">Bandhani</option>
+                                    <option value="kalamkari">Kalamkari</option>
+                                    <option value="madhubani">Madhubani</option>
+                                    <option value="warli">Warli</option>
+                                </optgroup>
+                                <optgroup label="Modern Patterns">
+                                    <option value="abstract">Abstract</option>
+                                    <option value="animal-print">Animal Print</option>
+                                    <option value="digital-print">Digital Print</option>
+                                    <option value="ombre">Ombre</option>
+                                    <option value="tie-dye">Tie-Dye</option>
+                                </optgroup>
+                                <option value="embroidered">Embroidered</option>
+                                <option value="embossed">Embossed</option>
+                                <option value="other-pattern">Other (specify in notes)</option>
+                            </select>
+                        </div>
+
+                        <!-- Fabric Weight -->
+                        <div class="col-md-4">
+                            <label class="form-label">Fabric Weight</label>
+                            <select class="form-select" name="fabricWeight" id="fabricWeight">
+                                <option value="">Select weight...</option>
+                                <option value="light">Light Weight (Chiffon, Georgette)</option>
+                                <option value="medium">Medium Weight (Cotton, Linen)</option>
+                                <option value="heavy">Heavy Weight (Silk, Brocade)</option>
+                                <option value="very-heavy">Very Heavy (Velvet, Wool)</option>
+                            </select>
+                        </div>
+
+                        <!-- Fabric Texture -->
+                        <div class="col-md-4">
+                            <label class="form-label">Fabric Texture</label>
+                            <select class="form-select" name="fabricTexture" id="fabricTexture">
+                                <option value="">Select texture...</option>
+                                <option value="smooth">Smooth</option>
+                                <option value="rough">Rough</option>
+                                <option value="soft">Soft</option>
+                                <option value="crisp">Crisp</option>
+                                <option value="flowing">Flowing</option>
+                                <option value="structured">Structured</option>
+                                <option value="stretchy">Stretchy</option>
+                                <option value="shiny">Shiny/Glossy</option>
+                                <option value="matte">Matte</option>
+                                <option value="textured">Textured</option>
+                            </select>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-md-4">
+                            <label class="form-label">Fabric Quantity (meters) *</label>
+                            <input type="number" class="form-control" name="fabricQuantity" id="fabricQuantity" 
+                                   min="0.5" step="0.25" placeholder="e.g., 2.5" required>
+                            <small class="text-muted">Recommended: 2-3 meters for most garments</small>
+                        </div>
+
+                        <!-- Fabric Width -->
+                        <div class="col-md-4">
+                            <label class="form-label">Fabric Width</label>
+                            <select class="form-select" name="fabricWidth" id="fabricWidth">
+                                <option value="">Select width...</option>
+                                <option value="36">36 inches (Standard)</option>
+                                <option value="42">42 inches</option>
+                                <option value="44">44 inches (Common)</option>
+                                <option value="58">58 inches (Wide)</option>
+                                <option value="60">60 inches</option>
+                                <option value="other-width">Other (specify in notes)</option>
+                            </select>
+                        </div>
+
+                        <!-- Finishing Options -->
+                        <div class="col-md-8">
+                            <label class="form-label">Finishing Options</label>
+                            <div class="finishing-options">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="hemming" id="hemming">
+                                            <label class="form-check-label" for="hemming">
+                                                Hemming
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="lining" id="lining">
+                                            <label class="form-check-label" for="lining">
+                                                Lining
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="interfacing" id="interfacing">
+                                            <label class="form-check-label" for="interfacing">
+                                                Interfacing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="zipper" id="zipper">
+                                            <label class="form-check-label" for="zipper">
+                                                Zipper
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="buttons" id="buttons">
+                                            <label class="form-check-label" for="buttons">
+                                                Buttons
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="embroidery" id="embroidery">
+                                            <label class="form-check-label" for="embroidery">
+                                                Embroidery Work
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="beadwork" id="beadwork">
+                                            <label class="form-check-label" for="beadwork">
+                                                Bead Work
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="sequins" id="sequins">
+                                            <label class="form-check-label" for="sequins">
+                                                Sequin Work
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="piping" id="piping">
+                                            <label class="form-check-label" for="piping">
+                                                Piping
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="finishing" value="applique" id="applique">
+                                            <label class="form-check-label" for="applique">
+                                                Appliqué Work
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fabric Care Instructions -->
+                        <div class="col-md-12">
+                            <label class="form-label">Special Fabric Care Instructions</label>
+                            <textarea class="form-control" name="fabricCareInstructions" id="fabricCareInstructions" rows="2" 
+                                      placeholder="Any special care instructions for the fabric (e.g., dry clean only, hand wash, etc.)"></textarea>
+                        </div>
+
+                        <!-- Fabric Budget (for tailor-provided fabric) -->
+                        <div class="col-md-6 fabric-budget-section" id="fabricBudgetSection" style="display: none;">
+                            <label class="form-label">Fabric Budget (BDT)</label>
+                            <input type="number" class="form-control" name="fabricBudget" id="fabricBudget" 
+                                   min="0" step="50" placeholder="e.g., 1500">
+                            <small class="text-muted">Your budget for fabric (if tailor provides)</small>
+                        </div>
+
+                        <!-- Fabric Source (for tailor-provided fabric) -->
+                        <div class="col-md-6 fabric-budget-section" id="fabricSourceSection" style="display: none;">
+                            <label class="form-label">Preferred Fabric Source</label>
+                            <select class="form-select" name="fabricSource" id="fabricSource">
+                                <option value="">Tailor's choice</option>
+                                <option value="local-market">Local Market</option>
+                                <option value="branded-store">Branded Store</option>
+                                <option value="wholesale-market">Wholesale Market</option>
+                                <option value="online">Online</option>
+                                <option value="specific-shop">Specific Shop (mention in notes)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Additional Notes</h4>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" name="additionalNotes" rows="3" 
+                              placeholder="Any specific requirements or details..."></textarea>
+                </div>
+            </div>
+
+            <!-- Save Measurements Option -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="saveMeasurements" name="saveMeasurements">
+                        <label class="form-check-label" for="saveMeasurements">
+                            <strong>Save these measurements to my profile for future orders</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expected Delivery Date -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Delivery Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Expected Delivery Date</label>
+                            <input type="date" class="form-control" id="expectedDeliveryDate" name="expectedDeliveryDate" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Special Instructions</label>
+                            <textarea class="form-control" id="specialInstructions" name="specialInstructions" rows="2" 
+                                      placeholder="Any specific delivery instructions..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-cart"></i> Place Order
+                </button>
+                <a href="customer-dashboard.html" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Saved Measurements Modal -->
+    <div class="modal fade" id="measurementsModal" tabindex="-1" aria-labelledby="measurementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="measurementsModalLabel">Saved Measurements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="savedMeasurementsList">
+                        <!-- Saved measurements will be loaded here -->
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading measurements...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Success Modal -->
+    <div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-labelledby="orderSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="orderSuccessModalLabel">Order Placed Successfully!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderSuccessDetails">
+                        <!-- Order details will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="viewOrderButton">View Order Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script src="js/order-form.js"></script>
+</body>
+</html>
