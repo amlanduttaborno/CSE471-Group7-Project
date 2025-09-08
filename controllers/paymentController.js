@@ -27,28 +27,77 @@ exports.initiatePayment = async (req, res) => {
             });
         }
 
+        // Verify if the order belongs to the logged-in user
+        if (order.user._id.toString() !== req.user.id) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Unauthorized access to this order'
+            });
+        }
+
         // Calculate payment amount (40% for advance, 100% for full payment)
         const totalAmount = order.totalAmount;
         const paymentAmount = paymentType === 'advance' ? totalAmount * 0.4 : totalAmount;
 
-        // Simulate payment success for demo/testing
-        res.json({
-            status: 'success',
-            data: {
-                paymentId: 'demo-payment-id',
-                gatewayUrl: '/payment-success.html',
-                amount: paymentAmount,
-                orderDetails: {
-                    orderId: order._id,
-                    tailorName: order.tailor.name,
-                    tailorPhone: order.tailor.phone,
-                    totalAmount: order.totalAmount,
-                    paymentType: paymentType,
-                    clothType: order.clothType,
-                    fabricDetails: order.fabricDetails
-                }
-            }
+        // Create payment record
+        const payment = new Payment({
+            orderId: order._id,
+            customerId: req.user.id,
+            amount: paymentAmount,
+            paymentType,
+            status: 'pending'
         });
+
+        await payment.save();
+
+        // Prepare data for SSLCommerz
+        const transactionData = {
+            total_amount: paymentAmount,
+            currency: 'BDT',
+            tran_id: payment._id.toString(),
+            success_url: `${process.env.BASE_URL}/api/payment/success`,
+            fail_url: `${process.env.BASE_URL}/api/payment/fail`,
+            cancel_url: `${process.env.BASE_URL}/api/payment/cancel`,
+            ipn_url: `${process.env.BASE_URL}/api/payment/ipn`,
+            shipping_method: 'NO',
+            product_name: `Order #${order._id}`,
+            product_category: 'Tailoring',
+            product_profile: 'non-physical-goods',
+            cus_name: order.user.name,
+            cus_email: order.user.email,
+            cus_phone: order.user.phone,
+            cus_add1: order.user.address,
+            cus_city: 'Dhaka',
+            cus_country: 'Bangladesh',
+            value_a: order._id.toString(),
+            value_b: paymentType,
+            value_c: payment._id.toString()
+        };
+
+        // Initialize payment with SSLCommerz
+        const sslczData = await sslcommerz.init(transactionData);
+
+        if (sslczData?.GatewayPageURL) {
+            res.json({
+                status: 'success',
+                data: {
+                    paymentId: payment._id,
+                    gatewayUrl: sslczData.GatewayPageURL,
+                    amount: paymentAmount,
+                    orderDetails: {
+                        orderId: order._id,
+                        tailorName: order.tailor.name,
+                        tailorPhone: order.tailor.phone,
+                        totalAmount: order.totalAmount,
+                        paymentType: paymentType,
+                        clothType: order.clothType,
+                        fabricDetails: order.fabricDetails
+                    }
+                }
+            });
+        } else {
+            throw new Error('Failed to initialize SSLCommerz payment');
+        }
     } catch (error) {
         console.error('Payment initiation error:', error);
         res.status(500).json({
