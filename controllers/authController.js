@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { logActivity } = require('./activityController');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { sendVerificationEmail, generateOTP, sendPasswordResetEmail } = require('../utils/email');
@@ -295,6 +296,14 @@ exports.verifyEmail = async (req, res) => {
         user.isVerified = true;
         user.otp = undefined; // Clear OTP after successful verification
         await user.save();
+
+        // Log account creation activity
+        try {
+            await logActivity.accountCreated(user._id);
+        } catch (activityError) {
+            console.error('Failed to log account creation activity:', activityError);
+            // Don't fail the request if activity logging fails
+        }
 
         // Generate new token with longer expiry
         const newToken = jwt.sign(

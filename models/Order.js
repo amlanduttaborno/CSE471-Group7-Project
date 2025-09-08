@@ -11,33 +11,74 @@ const orderSchema = new mongoose.Schema({
         ref: 'Tailor',
         required: true
     },
+    garmentType: {
+        type: String,
+        required: true
+    },
     clothType: {
         type: String,
-        required: true,
-        enum: [
-            'Suits',
-            'Dresses',
-            'Shirts',
-            'Pants',
-            'Skirts',
-            'Blazers',
-            'Evening Gowns',
-            'Wedding Dresses',
-            'Business Attire',
-            'Casual Wear',
-            'Formal Wear',
-            'Alterations'
-        ]
+        required: false // Making this optional since we have garmentType
     },
     measurements: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Measurement',
+        type: mongoose.Schema.Types.Mixed,
         required: true
     },
     fabricDetails: {
-        type: String,
-        required: true
+        provider: {
+            type: String,
+            enum: ['customer', 'tailor'],
+            default: 'customer'
+        },
+        type: {
+            type: String,
+            default: ''
+        },
+        color: {
+            type: String,
+            default: ''
+        },
+        secondaryColor: {
+            type: String,
+            default: ''
+        },
+        pattern: {
+            type: String,
+            default: ''
+        },
+        weight: {
+            type: String,
+            default: ''
+        },
+        texture: {
+            type: String,
+            default: ''
+        },
+        quantity: {
+            type: Number,
+            default: 0
+        },
+        width: {
+            type: String,
+            default: ''
+        },
+        finishing: {
+            type: [String],
+            default: []
+        },
+        careInstructions: {
+            type: String,
+            default: ''
+        },
+        budget: {
+            type: Number,
+            default: 0
+        },
+        source: {
+            type: String,
+            default: ''
+        }
     },
+    style: String,
     status: {
         type: String,
         required: true,
@@ -65,9 +106,13 @@ const orderSchema = new mongoose.Schema({
         },
         notes: String
     }],
-    price: {
+    estimatedPrice: {
         type: Number,
         required: true
+    },
+    totalAmount: {
+        type: Number,
+        required: true // Make this required since it's being set by the controller
     },
     expectedDeliveryDate: {
         type: Date,
@@ -77,9 +122,13 @@ const orderSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    additionalNotes: {
+        type: String,
+        trim: true
+    },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Partial', 'Completed'],
+        enum: ['Pending', 'Partially Paid', 'Paid', 'Refunded'],
         default: 'Pending'
     },
     paymentHistory: [{

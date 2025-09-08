@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   name: {
     type: String,
     required: true,
@@ -13,6 +17,33 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true
+  },
+  phoneNumber: {
+    type: String,
+    trim: true
+  },
+  address: {
+    street: {
+      type: String,
+      trim: true
+    },
+    city: {
+      type: String,
+      trim: true
+    },
+    state: {
+      type: String,
+      trim: true
+    },
+    postalCode: {
+      type: String,
+      trim: true
+    }
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other'],
+    trim: true
   },
   password: {
     type: String,
@@ -87,4 +118,4 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema, 'Users');

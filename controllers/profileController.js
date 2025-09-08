@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { logActivity } = require('./activityController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -32,7 +33,7 @@ const upload = multer({
 
 exports.getProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
+        const user = await User.findById(req.user._id)
             .select('-password -otp');
 
         if (!user) {
@@ -82,14 +83,29 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const allowedUpdates = ['name', 'phone', 'address', 'bio', 'dateOfBirth'];
+        const allowedUpdates = [
+            'name', 
+            'phoneNumber', 
+            'address', 
+            'bio', 
+            'dateOfBirth',
+            'gender'
+        ];
         const updates = {};
 
-        // Filter only allowed fields
+        // Filter only allowed fields and handle nested objects
         Object.keys(req.body).forEach(key => {
             if (allowedUpdates.includes(key)) {
                 if (key === 'dateOfBirth' && req.body[key]) {
                     updates[key] = new Date(req.body[key]);
+                } else if (key === 'address' && typeof req.body[key] === 'object') {
+                    // Handle address as an object with nested fields
+                    updates[key] = {
+                        street: req.body[key].street || '',
+                        city: req.body[key].city || '',
+                        state: req.body[key].state || '',
+                        postalCode: req.body[key].postalCode || ''
+                    };
                 } else if (req.body[key]) {
                     updates[key] = req.body[key];
                 }
@@ -97,7 +113,7 @@ exports.updateProfile = async (req, res) => {
         });
 
         const user = await User.findByIdAndUpdate(
-            req.user.id,
+            req.user._id,
             updates,
             { new: true, runValidators: true }
         ).select('-password -otp');
@@ -107,6 +123,14 @@ exports.updateProfile = async (req, res) => {
                 status: 'error',
                 message: 'User not found'
             });
+        }
+
+        // Log profile update activity
+        try {
+            await logActivity.profileUpdated(req.user._id, updates);
+        } catch (activityError) {
+            console.error('Failed to log profile update activity:', activityError);
+            // Don't fail the request if activity logging fails
         }
 
         res.json({
@@ -164,7 +188,7 @@ exports.updateProfileImage = async (req, res) => {
             console.log('Image URL:', imageUrl);
 
             // Delete old profile picture if it exists
-            const oldUser = await User.findById(req.user.id);
+            const oldUser = await User.findById(req.user._id);
             if (oldUser && oldUser.profilePicture) {
                 const oldPath = path.join(__dirname, '..', oldUser.profilePicture);
                 if (fs.existsSync(oldPath)) {
@@ -173,7 +197,7 @@ exports.updateProfileImage = async (req, res) => {
             }
             
             const user = await User.findByIdAndUpdate(
-                req.user.id,
+                req.user._id,
                 { profilePicture: imageUrl },
                 { new: true }
             ).select('-password -otp');

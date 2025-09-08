@@ -46,3 +46,16 @@ exports.protect = async (req, res, next) => {
         });
     }
 };
+
+exports.isAdmin = async (req, res, next) => {
+    // Use protect middleware to get user
+    await exports.protect(req, res, async function() {
+        if (!req.user.isAdmin) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Access denied. Admins only.'
+            });
+        }
+        next();
+    });
+};
