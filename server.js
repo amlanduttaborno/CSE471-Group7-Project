@@ -10,6 +10,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -30,15 +31,35 @@ const userRoutes = require('./routes/userRoutes');
 const tailorRoutes = require('./routes/tailorRoutes');
 const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const tailorDashboardRoutes = require('./routes/tailorDashboardRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const tailorProfileRoutes = require('./routes/tailorProfileRoutes');
+const measurementRoutes = require('./routes/measurementRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const pricingRoutes = require('./routes/pricingRoutes');
+const testRoutes = require('./routes/testRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 const { forgotPassword, resetPassword } = require('./controllers/passwordResetController');
+const adminRoutes = require('./routes/adminRoutes');
 
 // API Routes
 app.use('/api/users', userRoutes);
 app.use('/api/tailors', tailorRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/tailor-dashboard', tailorDashboardRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/tailor-profile', tailorProfileRoutes);
+app.use('/api', measurementRoutes);
+app.use('/api/activities', activityRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/pricing', pricingRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Password Reset Routes
 app.post('/api/auth/forgot-password', forgotPassword);
@@ -50,6 +71,7 @@ mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000,
+    dbName: 'TailorCraft'
 })
 .then(() => {
     console.log('Successfully connected to MongoDB.');
@@ -95,6 +117,10 @@ app.get('/customer-auth.html', (req, res) => {
 
 app.get('/tailor-auth.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'tailor-auth.html'));
+});
+
+app.get('/tailor-dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'tailor-dashboard.html'));
 });
 
 // Error handling middleware
