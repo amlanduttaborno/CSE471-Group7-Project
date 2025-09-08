@@ -1,63 +1,35 @@
 const mongoose = require('mongoose');
 
 const measurementSchema = new mongoose.Schema({
-    user: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
+    label: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    garmentType: {
+        type: String,
+        required: true
+        // Removed enum restriction to allow all garment types
+    },
     measurements: {
-        chest: {
-            type: Number,
-            required: true
-        },
-        waist: {
-            type: Number,
-            required: true
-        },
-        hips: {
-            type: Number,
-            required: true
-        },
-        shoulder: {
-            type: Number,
-            required: true
-        },
-        sleeveLength: {
-            type: Number,
-            required: true
-        },
-        length: {
-            type: Number,
-            required: true
-        },
-        neck: {
-            type: Number,
-            required: true
-        },
-        inseam: {
-            type: Number,
-            required: false
-        },
-        thigh: {
-            type: Number,
-            required: false
-        },
-        calf: {
-            type: Number,
-            required: false
-        }
+        type: Map,
+        of: String,
+        required: true
     },
     notes: {
         type: String,
         trim: true
-    },
-    lastUpdated: {
-        type: Date,
-        default: Date.now
     }
 }, {
     timestamps: true
 });
+
+// Index for efficient querying
+measurementSchema.index({ userId: 1, updatedAt: -1 });
 
 module.exports = mongoose.model('Measurement', measurementSchema);

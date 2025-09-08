@@ -10,6 +10,7 @@ const generateToken = (id) => {
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const { isAdmin } = req.body; // Added isAdmin to the destructured request body
 
     // Check if user exists
     let user = await User.findOne({ email });
@@ -37,11 +38,13 @@ exports.register = async (req, res) => {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Create user
+
+    // Create user (support admin registration)
     user = new User({
       name,
       email,
       password,
+      isAdmin: !!isAdmin,
       otp: {
         code: otp,
         expiresAt: otpExpiry
@@ -57,7 +60,7 @@ exports.register = async (req, res) => {
     const token = generateToken(user._id);
 
     res.status(201).json({
-      message: 'Registration successful. Please verify your email.',
+      message: isAdmin ? 'Admin registration successful. Please verify your email.' : 'Registration successful. Please verify your email.',
       token,
       emailPreviewUrl,
       note: 'Since this is a test environment, use the emailPreviewUrl to view your verification email'
@@ -118,10 +121,13 @@ exports.login = async (req, res) => {
       await user.save();
       await sendVerificationEmail(email, otp);
 
-      return res.status(401).json({ 
+      return res.status(401).json({
+        status: 'error',
         message: 'Email not verified. A new verification code has been sent to your email.',
-        needsVerification: true,
-        token: generateToken(user._id)
+        data: {
+          requiresVerification: true,
+          token: generateToken(user._id)
+        }
       });
     }
 
@@ -129,13 +135,18 @@ exports.login = async (req, res) => {
     const token = generateToken(user._id);
 
     res.json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        address: user.address,
-        phone: user.phone
+      status: 'success',
+      message: 'Login successful',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          address: user.address,
+          phone: user.phone,
+          isAdmin: user.isAdmin || false
+        }
       }
     });
   } catch (err) {

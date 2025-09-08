@@ -27,77 +27,28 @@ exports.initiatePayment = async (req, res) => {
             });
         }
 
-        // Verify if the order belongs to the logged-in user
-        if (order.user._id.toString() !== req.user.id) {
-            return res.status(403).json({
-                status: 'error',
-                message: 'Unauthorized access to this order'
-            });
-        }
-
         // Calculate payment amount (40% for advance, 100% for full payment)
         const totalAmount = order.totalAmount;
         const paymentAmount = paymentType === 'advance' ? totalAmount * 0.4 : totalAmount;
 
-        // Create payment record
-        const payment = new Payment({
-            orderId: order._id,
-            customerId: req.user.id,
-            amount: paymentAmount,
-            paymentType,
-            status: 'pending'
-        });
-
-        await payment.save();
-
-        // Prepare data for SSLCommerz
-        const transactionData = {
-            total_amount: paymentAmount,
-            currency: 'BDT',
-            tran_id: payment._id.toString(),
-            success_url: `${process.env.BASE_URL}/api/payment/success`,
-            fail_url: `${process.env.BASE_URL}/api/payment/fail`,
-            cancel_url: `${process.env.BASE_URL}/api/payment/cancel`,
-            ipn_url: `${process.env.BASE_URL}/api/payment/ipn`,
-            shipping_method: 'NO',
-            product_name: `Order #${order._id}`,
-            product_category: 'Tailoring',
-            product_profile: 'non-physical-goods',
-            cus_name: order.user.name,
-            cus_email: order.user.email,
-            cus_phone: order.user.phone,
-            cus_add1: order.user.address,
-            cus_city: 'Dhaka',
-            cus_country: 'Bangladesh',
-            value_a: order._id.toString(),
-            value_b: paymentType,
-            value_c: payment._id.toString()
-        };
-
-        // Initialize payment with SSLCommerz
-        const sslczData = await sslcommerz.init(transactionData);
-
-        if (sslczData?.GatewayPageURL) {
-            res.json({
-                status: 'success',
-                data: {
-                    paymentId: payment._id,
-                    gatewayUrl: sslczData.GatewayPageURL,
-                    amount: paymentAmount,
-                    orderDetails: {
-                        orderId: order._id,
-                        tailorName: order.tailor.name,
-                        tailorPhone: order.tailor.phone,
-                        totalAmount: order.totalAmount,
-                        paymentType: paymentType,
-                        clothType: order.clothType,
-                        fabricDetails: order.fabricDetails
-                    }
+        // Simulate payment success for demo/testing
+        res.json({
+            status: 'success',
+            data: {
+                paymentId: 'demo-payment-id',
+                gatewayUrl: '/payment-success.html',
+                amount: paymentAmount,
+                orderDetails: {
+                    orderId: order._id,
+                    tailorName: order.tailor.name,
+                    tailorPhone: order.tailor.phone,
+                    totalAmount: order.totalAmount,
+                    paymentType: paymentType,
+                    clothType: order.clothType,
+                    fabricDetails: order.fabricDetails
                 }
-            });
-        } else {
-            throw new Error('Failed to initialize SSLCommerz payment');
-        }
+            }
+        });
     } catch (error) {
         console.error('Payment initiation error:', error);
         res.status(500).json({
@@ -166,6 +117,82 @@ exports.handlePaymentFailure = async (req, res) => {
     }
 };
 
+exports.completePayment = async (req, res) => {
+    try {
+        console.log('=== PAYMENT COMPLETION REQUEST ===');
+        console.log('Request body:', JSON.stringify(req.body, null, 2));
+        console.log('User ID:', req.user.id);
+        
+        const { orderId, amount, paymentType, paymentMethod, status, transactionId } = req.body;
+
+        // Validate required fields
+        if (!orderId || !amount || !paymentType || !paymentMethod || !transactionId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Missing required payment fields'
+            });
+        }
+
+        // Verify order exists and belongs to user
+        const order = await Order.findById(orderId)
+            .populate('user', 'name email phone')
+            .populate('tailor', 'name shopName');
+
+        if (!order) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Order not found'
+            });
+        }
+
+        if (order.user._id.toString() !== req.user.id) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Unauthorized access to this order'
+            });
+        }
+
+        // Create payment record
+        const paymentData = {
+            orderId: orderId,
+            customerId: req.user.id,
+            amount: amount,
+            paymentType: paymentType,
+            paymentMethod: paymentMethod,
+            transactionId: transactionId,
+            status: status || 'completed'
+        };
+
+        console.log('Creating payment record:', paymentData);
+        const payment = await Payment.create(paymentData);
+        console.log('✅ Payment record created:', payment._id);
+
+        // Update order payment status
+    order.paymentStatus = paymentType === 'advance' ? 'Partially Paid' : 'Paid';
+        await order.save();
+        console.log('✅ Order payment status updated');
+
+        res.json({
+            status: 'success',
+            message: 'Payment completed successfully',
+            data: {
+                paymentId: payment._id,
+                transactionId: payment.transactionId,
+                amount: payment.amount,
+                paymentType: payment.paymentType,
+                orderStatus: order.paymentStatus
+            }
+        });
+    } catch (error) {
+        console.error('❌ Payment completion error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to complete payment',
+            error: error.message
+        });
+    }
+};
+
 exports.getPaymentStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -193,6 +220,41 @@ exports.getPaymentStatus = async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: 'Failed to get payment status',
+            error: error.message
+        });
+    }
+};
+
+exports.getOrderPaymentDetails = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        
+        // Get order with payment details
+        const order = await Order.findById(orderId)
+            .populate('user', 'name email phone')
+            .populate('tailor', 'name shopName');
+            
+        const payment = await Payment.findOne({ orderId }).sort({ createdAt: -1 });
+
+        if (!order) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Order not found'
+            });
+        }
+
+        res.json({
+            status: 'success',
+            data: {
+                order: order,
+                payment: payment
+            }
+        });
+    } catch (error) {
+        console.error('Get order payment details error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to get order payment details',
             error: error.message
         });
     }

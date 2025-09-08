@@ -22,7 +22,7 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['SSLCommerz', 'bKash', 'Nagad'],
+        enum: ['SSLCommerz', 'bKash', 'Nagad', 'card', 'bkash', 'nagad'],
         required: true
     },
     transactionId: {

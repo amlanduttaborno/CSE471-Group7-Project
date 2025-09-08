@@ -1,62 +1,18 @@
 const User = require('../models/User');
+const Measurement = require('../models/Measurement');
+const { logActivity } = require('./activityController');
 const mongoose = require('mongoose');
-
-// Define Measurement Schema
-const measurementSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    measurements: {
-        chest: Number,
-        waist: Number,
-        hips: Number,
-        shoulder: Number,
-        sleeveLength: Number,
-        length: Number,
-        neck: Number,
-        inseam: Number,
-        thigh: Number
-    },
-    lastUpdated: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-const Measurement = mongoose.model('Measurement', measurementSchema);
 
 exports.getMeasurements = async (req, res) => {
     try {
-        // Get measurements from user's profile
-        const user = await User.findById(req.user.id).populate('measurements');
+        // Get all measurements for the user
+        const measurements = await Measurement.find({ userId: req.user._id })
+            .sort({ updatedAt: -1 });
         
-        if (!user.measurements) {
-            return res.json({
-                status: 'success',
-                data: {
-                    measurements: {
-                        measurements: {
-                            chest: '',
-                            waist: '',
-                            hips: '',
-                            shoulder: '',
-                            sleeveLength: '',
-                            length: '',
-                            neck: '',
-                            inseam: '',
-                            thigh: ''
-                        }
-                    }
-                }
-            });
-        }
-
         res.json({
             status: 'success',
             data: {
-                measurements: user.measurements
+                measurements: measurements
             }
         });
     } catch (error) {
@@ -70,43 +26,159 @@ exports.getMeasurements = async (req, res) => {
 
 exports.saveMeasurements = async (req, res) => {
     try {
-        const measurements = req.body;
-        const userId = req.user.id;
-
-        let user = await User.findById(userId);
+        console.log('=== MEASUREMENT SAVING REQUEST ===');
+        console.log('Request body:', JSON.stringify(req.body, null, 2));
+        console.log('User ID:', req.user._id);
         
-        if (!user) {
-            return res.status(404).json({
+        const { label, garmentType, measurements } = req.body;
+        const userId = req.user._id;
+
+        // Validate required fields
+        if (!label || !garmentType || !measurements) {
+            console.error('Missing required fields:', { label: !!label, garmentType: !!garmentType, measurements: !!measurements });
+            return res.status(400).json({
                 status: 'error',
-                message: 'User not found'
+                message: 'Label, garment type, and measurements are required'
             });
         }
 
-        // Create or update measurements
-        if (!user.measurements) {
-            const newMeasurement = new Measurement({
-                userId,
-                measurements: measurements
+        console.log('Validation passed, creating measurement...');
+        console.log('Garment type:', garmentType);
+        console.log('Measurements:', measurements);
+
+        // Create new measurement set - simplified
+        const measurementData = {
+            userId,
+            label,
+            garmentType,
+            measurements
+        };
+
+        console.log('About to save measurement to database...');
+        const savedMeasurement = await Measurement.create(measurementData);
+        console.log('✅ Measurement saved successfully:', savedMeasurement._id);
+
+        res.json({
+            status: 'success',
+            message: 'Measurements saved successfully',
+            data: {
+                measurement: savedMeasurement
+            }
+        });
+    } catch (error) {
+        console.error('❌ Save measurements error:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to save measurements',
+            error: error.message
+        });
+    }
+};
+
+exports.updateMeasurements = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { label, garmentType, measurements } = req.body;
+        const userId = req.user._id;
+
+        // Find the measurement and verify ownership
+        const measurement = await Measurement.findOne({ _id: id, userId });
+        
+        if (!measurement) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Measurement not found'
             });
-            const savedMeasurement = await newMeasurement.save();
-            user.measurements = savedMeasurement._id;
-            await user.save();
-        } else {
-            await Measurement.findByIdAndUpdate(user.measurements, {
-                measurements: measurements,
-                lastUpdated: Date.now()
+        }
+
+        // Update the measurement
+        measurement.label = label || measurement.label;
+        measurement.garmentType = garmentType || measurement.garmentType;
+        measurement.measurements = measurements || measurement.measurements;
+
+        const updatedMeasurement = await measurement.save();
+
+        // Log measurement edited activity
+        try {
+            await logActivity.measurementEdited(userId, measurement._id);
+        } catch (activityError) {
+            console.error('Failed to log measurement edited activity:', activityError);
+            // Don't fail the request if activity logging fails
+        }
+
+        res.json({
+            status: 'success',
+            message: 'Measurements updated successfully',
+            data: {
+                measurement: updatedMeasurement
+            }
+        });
+    } catch (error) {
+        console.error('Update measurements error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to update measurements'
+        });
+    }
+};
+
+exports.deleteMeasurements = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        // Find and delete the measurement
+        const measurement = await Measurement.findOneAndDelete({ _id: id, userId });
+        
+        if (!measurement) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Measurement not found'
             });
         }
 
         res.json({
             status: 'success',
-            message: 'Measurements saved successfully'
+            message: 'Measurements deleted successfully'
         });
     } catch (error) {
-        console.error('Save measurements error:', error);
+        console.error('Delete measurements error:', error);
         res.status(500).json({
             status: 'error',
-            message: 'Failed to save measurements'
+            message: 'Failed to delete measurements'
+        });
+    }
+};
+
+exports.getMeasurementById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const measurement = await Measurement.findOne({ _id: id, userId });
+        
+        if (!measurement) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Measurement not found'
+            });
+        }
+
+        res.json({
+            status: 'success',
+            data: {
+                measurement: measurement
+            }
+        });
+    } catch (error) {
+        console.error('Get measurement by ID error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to get measurement'
         });
     }
 };

@@ -14,6 +14,55 @@ const tailorSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  phoneNumber: {
+    type: String,
+    trim: true
+  },
+  shopName: {
+    type: String,
+    trim: true
+  },
+  shopAddress: {
+    street: {
+      type: String,
+      trim: true
+    },
+    city: {
+      type: String,
+      trim: true
+    },
+    state: {
+      type: String,
+      trim: true
+    },
+    postalCode: {
+      type: String,
+      trim: true
+    }
+  },
+  businessHours: {
+    start: {
+      type: String,
+      trim: true
+    },
+    end: {
+      type: String,
+      trim: true
+    },
+    daysOpen: {
+      type: [String],
+      default: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    }
+  },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  bio: {
+    type: String,
+    trim: true,
+    maxLength: [1000, 'Bio cannot be more than 1000 characters']
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],
@@ -50,18 +99,18 @@ const tailorSchema = new mongoose.Schema({
     validate: {
       validator: function(specializations) {
         const validClothingTypes = [
-          'Suits',
-          'Dresses',
-          'Shirts',
-          'Pants',
-          'Skirts',
-          'Blazers',
-          'Evening Gowns',
-          'Wedding Dresses',
-          'Business Attire',
-          'Casual Wear',
-          'Formal Wear',
-          'Alterations'
+          'Kurti',
+          'Salwar Kameez',
+          'Lehenga',
+          'Sharee',
+          'Gharara',
+          'Anarkali',
+          'Palazzo',
+          'Panjabi',
+          'Fotua',
+          'Alterations',
+          'Bridal Wear',
+          'Traditional Wear'
         ];
         return specializations.every(item => validClothingTypes.includes(item));
       },
@@ -71,6 +120,28 @@ const tailorSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false
+  },
+  otp: {
+    type: String
+  },
+  otpExpires: {
+    type: Date
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  averageRating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  totalReviews: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
@@ -110,4 +181,4 @@ tailorSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.model('Tailor', tailorSchema);
+module.exports = mongoose.model('Tailor', tailorSchema, 'Tailors');
