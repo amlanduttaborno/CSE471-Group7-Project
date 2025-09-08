@@ -109,13 +109,31 @@
                         <input type="text" id="specialization" class="form-control" required placeholder="e.g., Kurti, Salwar Kameez, Lehenga, Sharee, Gharara">
                     </div>
                     <button type="submit" class="btn btn-primary">Submit Application</button>
-                    <div class="auth-links">
-                        <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
-                    </div>
-                </form>
+            <div class="auth-links">
+                <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
             </div>
+        </form>
+    </div>
 
-            <div id="response" class="response-message"></div>
+    <!-- Email Verification Form -->
+    <div id="verificationForm" style="display: none;">
+        <h2 class="form-title">Verify Your Email</h2>
+        <p class="form-subtitle">Enter the verification code sent to your email</p>
+        <form id="verificationFormElement">
+            <div class="form-group">
+                <label for="verificationEmail">Email</label>
+                <input type="email" id="verificationEmail" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+                <input type="text" id="otp" class="form-control" required placeholder="Enter verification code">
+            </div>
+            <button type="submit" class="btn btn-primary">Verify Email</button>
+            <div class="auth-links">
+                <p>Didn't receive code? <a href="#" id="resendOTP">Resend Code</a></p>
+            </div>
+        </form>
+    </div>            <div id="response" class="response-message"></div>
         </div>
     </div>
 
@@ -204,13 +222,14 @@
                 });
                 const data = await response.json();
                 
-                if (response.ok) {
+                if (response.ok && data.status === 'success') {
                     responseDiv.className = 'response-message success';
-                    responseDiv.innerHTML = 'Registration successful! Your application is under review. We will notify you once approved.';
-                    setTimeout(() => {
-                        document.getElementById('registerForm').style.display = 'none';
-                        document.getElementById('loginForm').style.display = 'block';
-                    }, 3000);
+                    responseDiv.innerHTML = data.message || 'Please check your email for verification code.';
+                    
+                    // Show verification form
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('verificationForm').style.display = 'block';
+                    document.getElementById('verificationEmail').value = document.getElementById('email').value;
                 } else {
                     responseDiv.className = 'response-message error';
                     responseDiv.innerHTML = data.message;
@@ -237,11 +256,13 @@
                 });
                 const data = await response.json();
                 
-                if (response.ok) {
+                if (response.ok && data.status === 'success') {
                     responseDiv.className = 'response-message success';
-                    responseDiv.innerHTML = 'Login successful! Redirecting...';
+                    responseDiv.innerHTML = data.message || 'Login successful! Redirecting...';
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('userType', 'tailor');
+                    // Save tailor data
+                    localStorage.setItem('tailorData', JSON.stringify(data.data.tailor));
                     // Redirect to tailor dashboard after successful login
                     setTimeout(() => {
                         window.location.href = '/tailor-dashboard.html';
@@ -255,6 +276,63 @@
                 responseDiv.innerHTML = error.message;
             }
         });
+    </script>
+            // Verify Email Form Handler
+            document.getElementById('verificationFormElement').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch(`${API_URL}/tailors/verify-email`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: document.getElementById('verificationEmail').value,
+                            otp: document.getElementById('otp').value
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (response.ok && data.status === 'success') {
+                        responseDiv.className = 'response-message success';
+                        responseDiv.innerHTML = data.message;
+                        setTimeout(() => {
+                            document.getElementById('verificationForm').style.display = 'none';
+                            document.getElementById('loginForm').style.display = 'block';
+                        }, 2000);
+                    } else {
+                        responseDiv.className = 'response-message error';
+                        responseDiv.innerHTML = data.message;
+                    }
+                } catch (error) {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = error.message;
+                }
+            });
+
+            // Resend OTP Handler
+            document.getElementById('resendOTP').addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch(`${API_URL}/tailors/resend-otp`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: document.getElementById('verificationEmail').value
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    responseDiv.className = 'response-message success';
+                    responseDiv.innerHTML = data.message || 'Verification code resent. Please check your email.';
+                } catch (error) {
+                    responseDiv.className = 'response-message error';
+                    responseDiv.innerHTML = error.message;
+                }
+            });
+        }
     </script>
 </body>
 </html>

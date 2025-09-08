@@ -6,16 +6,22 @@ const {
     getMeasurements,
     updateMeasurements,
     getOrders,
-    getOrderDetails
+    getOrderDetails,
+    getUserOrdersWithTailors,
+    createTestDeliveredOrder
 } = require('../controllers/orderController');
 
 // All routes require authentication
 router.use(protect);
 
 // Order routes
-router.post('/create', createOrder);
+router.post('/', createOrder); // Changed from '/create' to '/' to match frontend
 router.get('/', getOrders);
+router.get('/user', getUserOrdersWithTailors); // New route for dashboard
 router.get('/:orderId', getOrderDetails);
+
+// Test route for creating delivered orders (for review testing)
+router.post('/test/delivered', createTestDeliveredOrder);
 
 // Measurement routes
 router.get('/measurements', getMeasurements);

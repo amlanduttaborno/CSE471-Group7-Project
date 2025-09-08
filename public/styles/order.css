@@ -1,0 +1,193 @@
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem;
+}
+
+.card-header h4 {
+    margin-bottom: 0;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-primary {
+    padding: 0.75rem 1.5rem;
+}
+
+.progress {
+    height: 1.5rem;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+#fabricDetailsSection {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced fabric selection styling */
+.fabric-provider-section {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.fabric-details-row {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.fabric-budget-section {
+    background-color: #e3f2fd;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid #2196f3;
+}
+
+.finishing-options {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid #e9ecef;
+}
+
+.finishing-options .form-check {
+    margin-bottom: 0.5rem;
+}
+
+.finishing-options .form-check-label {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.fabric-recommendations {
+    background-color: #fff3cd;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid #ffc107;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Fabric type optgroups styling */
+optgroup {
+    font-weight: bold;
+    color: #495057;
+}
+
+optgroup option {
+    font-weight: normal;
+    padding-left: 1rem;
+}
+
+/* Color indicators for fabric colors */
+.color-option {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.color-option::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+}
+
+/* Fabric texture indicators */
+.texture-info {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Pattern examples */
+.pattern-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.pattern-solid { background: #333; }
+.pattern-stripes { background: repeating-linear-gradient(45deg, #333, #333 2px, transparent 2px, transparent 8px); }
+.pattern-checks { background: conic-gradient(#333 90deg, transparent 90deg 180deg, #333 180deg 270deg, transparent 270deg); background-size: 8px 8px; }
+.pattern-dots { background: radial-gradient(circle at 50% 50%, #333 1px, transparent 2px); background-size: 6px 6px; }
+
+/* Custom styling for measurement inputs */
+input[type="number"] {
+    text-align: right;
+}
+
+/* Style for saved measurements checkbox */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Payment method styling */
+.payment-method-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* Progress bar customization */
+.progress-bar {
+    transition: width 0.6s ease;
+    background-color: #0d6efd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+}
+
+/* Animation for notifications */
+.alert {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

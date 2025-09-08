@@ -12,19 +12,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads');
-const profilesDir = path.join(uploadsDir, 'profiles');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-if (!fs.existsSync(profilesDir)) {
-    fs.mkdirSync(profilesDir, { recursive: true });
+// Note: File uploads are handled via cloud storage in production
+// Local uploads directory is only used in development
+if (process.env.NODE_ENV !== 'production') {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    const profilesDir = path.join(uploadsDir, 'profiles');
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    if (!fs.existsSync(profilesDir)) {
+        fs.mkdirSync(profilesDir, { recursive: true });
+    }
+    // Only serve local uploads in development
+    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 }
 
 // Static file serving
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
@@ -65,21 +69,37 @@ app.use('/api/admin', adminRoutes);
 app.post('/api/auth/forgot-password', forgotPassword);
 app.post('/api/auth/reset-password', resetPassword);
 
-// MongoDB Connection with detailed error logging
-mongoose.set('debug', true);
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000,
-    dbName: 'TailorCraft'
-})
-.then(() => {
-    console.log('Successfully connected to MongoDB.');
-})
-.catch((err) => {
-    console.error('MongoDB connection error:', err);
-    console.error('MongoDB URI:', process.env.MONGODB_URI);
-    process.exit(1);
+// MongoDB Connection optimized for serverless
+mongoose.set('debug', process.env.NODE_ENV === 'development');
+
+const connectDB = async () => {
+    try {
+        if (mongoose.connections[0].readyState) {
+            return mongoose.connections[0];
+        }
+        
+        const conn = await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            bufferCommands: false,
+            dbName: 'TailorCraft'
+        });
+        
+        console.log('Successfully connected to MongoDB.');
+        return conn;
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        console.error('MongoDB URI:', process.env.MONGODB_URI ? 'URI is set' : 'URI is not set');
+        throw err;
+    }
+};
+
+// Initialize connection
+connectDB().catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+    }
 });
 
 // Connection error handling
@@ -133,20 +153,34 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
 
-// Handle server errors
-server.on('error', (err) => {
-    console.error('Server error:', err);
-});
+// Only start server if not in serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    const server = app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+
+    // Handle server errors
+    server.on('error', (err) => {
+        console.error('Server error:', err);
+    });
+}
+
+// For Vercel, export the app
+module.exports = app;
 
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection:', err);
+    // Don't exit in production/serverless
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+    }
 });
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
-    process.exit(1);
+    // Don't exit in production/serverless
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+    }
 });
